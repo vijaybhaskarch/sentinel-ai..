@@ -1,0 +1,1780 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sentinel AI — Cloud IDS &amp; IPS Security Command Center</title>
+  
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            cyber: {
+              bg: '#05070c',
+              surface: '#0b0f19',
+              card: '#111726',
+              border: '#1e293b',
+              neon: '#00ff9d',
+              cyan: '#00f0ff',
+              red: '#ff0055',
+              yellow: '#ffb703',
+              purple: '#a855f7'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          boxShadow: {
+            'neon-green': '0 0 20px -3px rgba(0, 255, 157, 0.45)',
+            'neon-red': '0 0 20px -3px rgba(255, 0, 85, 0.45)',
+            'neon-cyan': '0 0 20px -3px rgba(0, 240, 255, 0.45)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Supabase Client SDK CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    /* Custom Keyframe Animations */
+    @keyframes slideDownThreat {
+      0% {
+        opacity: 0;
+        transform: translateY(-24px) scale(0.97);
+        background-color: rgba(255, 0, 85, 0.35);
+      }
+      50% {
+        background-color: rgba(255, 0, 85, 0.18);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .animate-threat-enter {
+      animation: slideDownThreat 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes radarPulse {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.1); opacity: 0.3; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+
+    .animate-radar {
+      animation: radarPulse 3s infinite ease-in-out;
+    }
+
+    /* Cyber Grid Background in Dark Mode */
+    .dark .cyber-grid {
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.12) 0%, transparent 65%),
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 100% 100%, 40px 40px, 40px 40px;
+    }
+
+    /* Clean Subtle Grid Background in Light Mode */
+    .light-grid {
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.07) 0%, transparent 60%),
+        linear-gradient(to right, rgba(0, 0, 0, 0.035) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.035) 1px, transparent 1px);
+      background-size: 100% 100%, 36px 36px, 36px 36px;
+    }
+
+    /* Scanline effect accent in dark mode */
+    .dark .cyber-scanline {
+      position: relative;
+    }
+    .dark .cyber-scanline::after {
+      content: " ";
+      display: block;
+      position: absolute;
+      top: 0; left: 0; bottom: 0; right: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.24) 50%);
+      background-size: 100% 4px;
+      z-index: 40;
+      pointer-events: none;
+      opacity: 0.16;
+    }
+
+    /* Terminal scroll style */
+    .terminal-scroll::-webkit-scrollbar {
+      width: 5px;
+    }
+    .terminal-scroll::-webkit-scrollbar-thumb {
+      background: rgba(0, 240, 255, 0.25);
+      border-radius: 4px;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.4);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(100, 116, 139, 0.45);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(148, 163, 184, 0.7);
+    }
+  </style>
+</head>
+<body class="transition-colors duration-300 font-sans min-h-screen bg-slate-50 text-slate-800 dark:bg-cyber-bg dark:text-slate-100 cyber-grid">
+
+  <!-- Cyber Scanline Overlay wrapper -->
+  <div class="cyber-scanline min-h-screen flex flex-col">
+
+    <!-- ========================================================================= -->
+    <!-- 1. TOP NAVBAR                                                             -->
+    <!-- ========================================================================= -->
+    <header class="sticky top-0 z-30 backdrop-blur-md border-b transition-colors duration-300 bg-white/90 border-slate-200 shadow-sm dark:bg-cyber-surface/85 dark:border-cyber-border dark:shadow-none">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-3">
+        
+        <!-- Brand / Title -->
+        <div class="flex items-center gap-3.5">
+          <div class="relative flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-md dark:from-cyan-500 dark:to-cyber-neon dark:text-black dark:shadow-neon-cyan">
+            <i data-lucide="shield-alert" class="w-6 h-6 stroke-[2.2]"></i>
+            <!-- Pulse Radar Dot -->
+            <span class="absolute -top-1 -right-1 flex h-3.5 w-3.5">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border-2 border-white dark:border-cyber-surface"></span>
+            </span>
+          </div>
+
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-xl font-bold tracking-tight text-slate-900 dark:text-white font-mono">
+                SENTINEL<span class="text-blue-600 dark:text-cyber-cyan">.AI</span>
+              </h1>
+              <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold tracking-wider uppercase bg-blue-100 text-blue-800 dark:bg-cyber-cyan/15 dark:text-cyber-cyan dark:border dark:border-cyber-cyan/30">
+                IDS / IPS v2.4
+              </span>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 font-mono flex items-center gap-1.5">
+              <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
+              CLOUD PERIMETER DEFENSE ACTIVE &bull; AWS us-east-1 VPC
+            </p>
+          </div>
+        </div>
+
+        <!-- Center / Right: Action Bar -->
+        <div class="flex items-center gap-2 sm:gap-3">
+          
+          <!-- Autonomous IPS Switch -->
+          <div class="flex items-center gap-2 px-2.5 py-1.5 rounded-xl border transition-all duration-200 bg-slate-100/90 border-slate-200 dark:bg-cyber-card dark:border-cyber-border">
+            <div class="flex flex-col text-right">
+              <span class="text-[9px] font-bold tracking-wider uppercase text-slate-500 dark:text-slate-400 font-mono">AUTO-IPS</span>
+              <span id="autoDefenseLabel" class="text-xs font-semibold text-emerald-600 dark:text-cyber-neon font-mono">ARMED</span>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="autoDefenseToggle" checked class="sr-only peer">
+              <div class="w-10 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-slate-600 peer-checked:bg-emerald-500 dark:peer-checked:bg-cyber-neon"></div>
+            </label>
+          </div>
+
+          <!-- Live Ambient Traffic Stream Toggle -->
+          <button id="liveStreamToggleBtn" title="Toggle automatic continuous threat injection stream" class="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-mono font-medium border transition-all duration-200 bg-slate-100 dark:bg-cyber-card border-slate-200 dark:border-cyber-border text-slate-600 dark:text-slate-300 hover:text-cyan-400">
+            <span class="w-2 h-2 rounded-full bg-slate-400" id="liveStreamDot"></span>
+            <span id="liveStreamLabel">Live Stream: OFF</span>
+          </button>
+
+          <!-- Simulate Attack Button -->
+          <button id="simulateBtn" class="group relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 bg-red-600 hover:bg-red-700 text-white shadow-sm hover:shadow-md active:scale-95 dark:bg-cyber-red/20 dark:text-cyber-red dark:border dark:border-cyber-red/50 dark:hover:bg-cyber-red dark:hover:text-black dark:shadow-neon-red">
+            <i data-lucide="flame" class="w-4 h-4 transition-transform group-hover:scale-110"></i>
+            <span class="font-mono">Simulate Attack</span>
+          </button>
+
+          <!-- Reset / Reseed Scenario Button (ALWAYS BRINGS BACK ACTIVE INTRUSIONS) -->
+          <button id="reseedBtn" title="Reset scenario & generate fresh active incursions" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium border transition-all duration-200 bg-white hover:bg-slate-50 text-slate-700 border-slate-300 shadow-sm dark:bg-cyber-card dark:border-cyber-border dark:text-cyan-400 dark:hover:bg-cyan-950/40">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+            <span class="hidden sm:inline font-mono">Reset Scenario</span>
+          </button>
+
+          <!-- Sound FX Toggle -->
+          <button id="soundToggleBtn" title="Toggle Sci-Fi HUD Audio Effects" class="p-2 rounded-xl border transition-all duration-200 bg-white hover:bg-slate-100 text-slate-600 border-slate-300 shadow-sm dark:bg-cyber-card dark:border-cyber-border dark:text-slate-300 dark:hover:text-cyber-neon">
+            <i id="soundIcon" data-lucide="volume-2" class="w-4 h-4"></i>
+          </button>
+
+          <!-- Export CSV Button -->
+          <button id="exportBtn" title="Export RFC-4180 audit logs" class="hidden sm:inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-medium border transition-all duration-200 bg-white hover:bg-slate-50 text-slate-700 border-slate-300 shadow-sm dark:bg-cyber-card dark:border-cyber-border dark:text-slate-300">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+            <span class="font-mono">CSV</span>
+          </button>
+
+          <!-- Theme Toggle -->
+          <button id="themeToggleBtn" aria-label="Toggle Theme" class="p-2 rounded-xl border transition-all duration-200 bg-white hover:bg-slate-100 text-slate-600 border-slate-300 shadow-sm dark:bg-cyber-card dark:border-cyber-border dark:text-cyber-cyan dark:hover:bg-slate-800">
+            <i id="sunIcon" data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+            <i id="moonIcon" data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
+          </button>
+
+        </div>
+      </div>
+    </header>
+
+    <!-- ========================================================================= -->
+    <!-- 2. MAIN CONTENT                                                           -->
+    <!-- ========================================================================= -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-7 space-y-6">
+      
+      <!-- Live Alert Banner (Dynamic) -->
+      <div id="liveAlertBanner" class="transition-all duration-300 rounded-xl p-3.5 border flex items-center justify-between text-xs sm:text-sm font-mono bg-red-50 border-red-200 text-red-800 dark:bg-cyber-red/10 dark:border-cyber-red/40 dark:text-cyber-red shadow-[0_0_15px_rgba(255,0,85,0.15)]">
+        <div class="flex items-center gap-2.5">
+          <span class="flex h-2.5 w-2.5 relative">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+          </span>
+          <span id="liveAlertMessage">ALERT: 2 ACTIVE BREACH ATTEMPTS DETECTED ON EDGE INTERFACE</span>
+        </div>
+        <span class="text-xs opacity-80 hidden sm:inline">IPS Auto-Mitigation Engine Active &bull; Zero Lateral Movement</span>
+      </div>
+
+      <!-- ======================================================================= -->
+      <!-- 3. STATS DASHBOARD                                                      -->
+      <!-- ======================================================================= -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+        
+        <!-- Total Monitored Traffic -->
+        <div class="relative overflow-hidden p-5 rounded-2xl border transition-all duration-200 bg-white border-slate-200 shadow-sm hover:shadow-md dark:bg-cyber-surface/90 dark:border-cyber-border dark:hover:border-slate-700">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 font-mono">Total Packets Inspected</span>
+            <div class="p-2 rounded-lg bg-blue-50 text-blue-600 dark:bg-cyber-cyan/10 dark:text-cyber-cyan">
+              <i data-lucide="activity" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <div class="flex items-baseline justify-between">
+            <span id="statTotalTraffic" class="text-2xl sm:text-3xl font-extrabold tracking-tight font-mono text-slate-900 dark:text-white">1,504,965</span>
+            <span class="text-xs font-semibold text-emerald-600 dark:text-cyber-neon flex items-center gap-1 font-mono">
+              <i data-lucide="trending-up" class="w-3.5 h-3.5"></i> +14.2%
+            </span>
+          </div>
+          <div class="mt-2 text-xs text-slate-500 dark:text-slate-400 font-mono">Deep packet inspection stream (eBPF)</div>
+        </div>
+
+        <!-- Active Threats -->
+        <div class="relative overflow-hidden p-5 rounded-2xl border transition-all duration-200 bg-white border-slate-200 shadow-sm hover:shadow-md dark:bg-cyber-surface/90 dark:border-cyber-border dark:hover:border-red-900/60">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 font-mono">Active Incursions</span>
+            <div class="p-2 rounded-lg bg-red-50 text-red-600 dark:bg-cyber-red/10 dark:text-cyber-red">
+              <i data-lucide="zap" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <div class="flex items-baseline justify-between">
+            <span id="statActiveThreats" class="text-2xl sm:text-3xl font-extrabold tracking-tight font-mono text-red-600 dark:text-cyber-red">2</span>
+            <span id="activeThreatBadge" class="text-xs font-mono px-2 py-0.5 rounded bg-red-100 text-red-700 dark:bg-cyber-red/20 dark:text-cyber-red border border-red-200 dark:border-cyber-red/30">
+              HIGH RISK
+            </span>
+          </div>
+          <div class="mt-2 text-xs text-slate-500 dark:text-slate-400 font-mono">Live edge quarantine pending</div>
+        </div>
+
+        <!-- Threats Blocked -->
+        <div class="relative overflow-hidden p-5 rounded-2xl border transition-all duration-200 bg-white border-slate-200 shadow-sm hover:shadow-md dark:bg-cyber-surface/90 dark:border-cyber-border dark:hover:border-emerald-900/60">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 font-mono">Threats Neutralized</span>
+            <div class="p-2 rounded-lg bg-emerald-50 text-emerald-600 dark:bg-cyber-neon/10 dark:text-cyber-neon">
+              <i data-lucide="shield-check" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <div class="flex items-baseline justify-between">
+            <span id="statBlockedThreats" class="text-2xl sm:text-3xl font-extrabold tracking-tight font-mono text-emerald-600 dark:text-cyber-neon">10</span>
+            <span class="text-xs font-semibold text-emerald-600 dark:text-cyber-neon flex items-center gap-0.5 font-mono">
+              <i data-lucide="check" class="w-3.5 h-3.5"></i> Mitigated
+            </span>
+          </div>
+          <div class="mt-2 text-xs text-slate-500 dark:text-slate-400 font-mono">Synthesized iptables drop rules</div>
+        </div>
+
+        <!-- Auto Defense Efficiency -->
+        <div class="relative overflow-hidden p-5 rounded-2xl border transition-all duration-200 bg-white border-slate-200 shadow-sm hover:shadow-md dark:bg-cyber-surface/90 dark:border-cyber-border">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 font-mono">Autonomous IPS Efficacy</span>
+            <div class="p-2 rounded-lg bg-indigo-50 text-indigo-600 dark:bg-cyber-purple/10 dark:text-cyber-purple">
+              <i data-lucide="cpu" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <div class="flex items-baseline justify-between">
+            <span id="statDefenseRate" class="text-2xl sm:text-3xl font-extrabold tracking-tight font-mono text-indigo-600 dark:text-cyan-400">99.8%</span>
+            <span class="text-xs font-mono text-slate-500 dark:text-slate-400">Response &lt; 2.0s</span>
+          </div>
+          <div class="mt-2 text-xs text-slate-500 dark:text-slate-400 font-mono">Mean Time to Quarantine (MTTQ)</div>
+        </div>
+
+      </section>
+
+      <!-- ======================================================================= -->
+      <!-- 4. REAL-TIME TELEMETRY GRAPH & eBPF KERNEL STREAM                        -->
+      <!-- ======================================================================= -->
+      <section class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        
+        <!-- Live Real-Time Bandwidth & Anomaly Spike Visualizer (Canvas) -->
+        <div class="lg:col-span-2 rounded-2xl border p-4 sm:p-5 transition-all bg-white border-slate-200 shadow-sm dark:bg-cyber-surface/90 dark:border-cyber-border">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
+              <h3 class="font-bold text-xs sm:text-sm font-mono tracking-tight text-slate-900 dark:text-white">
+                LIVE NETWORK INGRESS TELEMETRY &amp; PACKET VOLUMETRICS
+              </h3>
+            </div>
+            <div class="flex items-center gap-3 text-[11px] font-mono text-slate-500 dark:text-slate-400">
+              <span class="flex items-center gap-1">
+                <span class="w-2 h-2 rounded-full bg-cyan-400 inline-block"></span>
+                Bandwidth: <strong id="liveMbpsValue" class="text-cyan-500 dark:text-cyber-cyan">842 Mbps</strong>
+              </span>
+              <span class="hidden sm:inline text-slate-400">|</span>
+              <span class="hidden sm:flex items-center gap-1">
+                <span class="w-2 h-2 rounded-full bg-red-500 inline-block"></span>
+                Anomalies: <strong id="liveAnomalySpikes" class="text-red-500 dark:text-cyber-red">14 pkts/s</strong>
+              </span>
+            </div>
+          </div>
+
+          <!-- Canvas Streaming Chart -->
+          <div class="relative w-full h-36 rounded-xl overflow-hidden bg-slate-950 border border-slate-800">
+            <canvas id="trafficCanvas" class="w-full h-full block"></canvas>
+            <div class="absolute top-2 left-3 text-[10px] font-mono text-slate-500 flex items-center gap-2">
+              <span>INTERFACE: eth0 / vpc_gw</span>
+              <span>SAMPLING: 60 FPS</span>
+            </div>
+            <div id="chartAlertBadge" class="absolute top-2 right-3 px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-red-950/80 text-red-400 border border-red-700 hidden">
+              VOLUMETRIC SPIKE DETECTED
+            </div>
+          </div>
+        </div>
+
+        <!-- Live eBPF / Suricata Kernel Telemetry Feed -->
+        <div class="rounded-2xl border p-4 sm:p-5 transition-all bg-white border-slate-200 shadow-sm dark:bg-cyber-surface/90 dark:border-cyber-border flex flex-col">
+          <div class="flex items-center justify-between mb-2.5">
+            <div class="flex items-center gap-2">
+              <i data-lucide="terminal" class="w-4 h-4 text-emerald-500 dark:text-cyber-neon"></i>
+              <h3 class="font-bold text-xs sm:text-sm font-mono tracking-tight text-slate-900 dark:text-white">
+                eBPF KERNEL AUDIT STREAM
+              </h3>
+            </div>
+            <span class="text-[10px] font-mono text-emerald-500 dark:text-cyber-neon flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> LOGGING
+            </span>
+          </div>
+
+          <div id="kernelLogsContainer" class="terminal-scroll flex-1 h-36 overflow-y-auto p-2.5 rounded-xl bg-slate-950 border border-slate-800 font-mono text-[10px] text-slate-300 space-y-1.5 select-all">
+            <!-- Dynamic kernel log lines -->
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ======================================================================= -->
+      <!-- 5. THREAT INTELLIGENCE FEED (MAIN DATA TABLE)                           -->
+      <!-- ======================================================================= -->
+      <section class="rounded-2xl border overflow-hidden transition-all duration-200 bg-white border-slate-200 shadow-sm dark:bg-cyber-surface/90 dark:border-cyber-border">
+        
+        <!-- Table Control Toolbar -->
+        <div class="p-4 sm:p-5 border-b border-slate-200 dark:border-cyber-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
+            <div>
+              <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white font-mono tracking-tight flex items-center gap-2">
+                LIVE INTRUSION TELEMETRY
+                <span id="recordCountBadge" class="text-xs font-normal px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-mono border dark:border-slate-700">
+                  12 Events
+                </span>
+              </h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400 font-mono">Real-time edge packet anomaly stream &bull; Synced with Supabase Realtime</p>
+            </div>
+          </div>
+
+          <!-- Quick Filter / Search -->
+          <div class="flex items-center gap-2.5">
+            <div class="relative">
+              <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+              <input 
+                type="text" 
+                id="searchFilter" 
+                placeholder="Filter IP, Attack, Country, ASN..." 
+                class="w-56 sm:w-64 pl-9 pr-3 py-1.5 text-xs rounded-xl border border-slate-300 dark:border-cyber-border bg-slate-50 dark:bg-cyber-card text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-cyber-cyan font-mono"
+              />
+            </div>
+            
+            <button id="clearFiltersBtn" title="Reset Filters" class="p-2 rounded-xl border border-slate-300 dark:border-cyber-border hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors">
+              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Table Container -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs sm:text-sm">
+            <thead>
+              <tr class="border-b border-slate-200 dark:border-cyber-border bg-slate-50/70 dark:bg-cyber-card/60 text-slate-500 dark:text-slate-400 font-mono uppercase text-[11px] tracking-wider">
+                <th class="py-3.5 px-4 font-semibold">Timestamp</th>
+                <th class="py-3.5 px-4 font-semibold">Source IP &amp; Network ASN</th>
+                <th class="py-3.5 px-4 font-semibold">Origin</th>
+                <th class="py-3.5 px-4 font-semibold">Attack Vector &amp; Target Port</th>
+                <th class="py-3.5 px-4 font-semibold">Status</th>
+                <th class="py-3.5 px-4 font-semibold text-right">IPS Actions</th>
+              </tr>
+            </thead>
+            <tbody id="threatTableBody" class="divide-y divide-slate-200 dark:divide-cyber-border/70 font-mono">
+              <!-- Seed Rows Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Table Footer / Status -->
+        <div class="p-3.5 border-t border-slate-200 dark:border-cyber-border/80 bg-slate-50/50 dark:bg-cyber-card/40 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400 font-mono">
+          <div class="flex items-center gap-2">
+            <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>IDS Telemetry Stream: <span id="syncStatusText" class="text-emerald-600 dark:text-cyber-neon font-bold">CONNECTED (SUPABASE REALTIME)</span></span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span>Target VPC: <strong class="text-cyan-500 dark:text-cyber-cyan">vpc-prod-us-east-1</strong></span>
+            <span>Engine: Sentinel AI Neural Detection v2.4</span>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- ========================================================================= -->
+    <!-- 6. FOOTER                                                                 -->
+    <!-- ========================================================================= -->
+    <footer class="mt-auto border-t border-slate-200 dark:border-cyber-border py-5 text-center text-xs text-slate-500 dark:text-slate-400 font-mono">
+      <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <span>Deployment Stack: Tailwind CSS &bull; Vanilla JS &bull; Supabase Postgres &bull; Lucide &bull; Vercel Edge</span>
+        </div>
+        <div class="text-slate-400 dark:text-slate-500">
+          Cloud IDS &amp; IPS Security Command Center &bull; Production Ready
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 7. AI ANALYSIS MODAL ("Ask AI")                                           -->
+  <!-- ========================================================================= -->
+  <div id="aiModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-all duration-200">
+    <div class="relative w-full max-w-lg rounded-2xl border shadow-2xl overflow-hidden transition-all bg-white border-slate-200 text-slate-800 dark:bg-cyber-surface dark:border-cyan-500/50 dark:text-slate-100 dark:shadow-neon-cyan/20">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-cyber-border bg-slate-50 dark:bg-cyber-card">
+        <div class="flex items-center gap-2.5">
+          <div class="p-1.5 rounded-lg bg-blue-100 text-blue-700 dark:bg-cyber-cyan/15 dark:text-cyber-cyan">
+            <i data-lucide="bot" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-sm sm:text-base font-mono">SENTINEL AI Threat Analyst</h3>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 font-mono">Heuristic Remediation &amp; MITRE ATT&amp;CK Mapping</p>
+          </div>
+        </div>
+        <button id="closeAiModalBtn" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 space-y-4 font-mono text-xs sm:text-sm">
+        <div class="grid grid-cols-2 gap-3 p-3 rounded-xl bg-slate-100 dark:bg-cyber-card border border-slate-200 dark:border-cyber-border">
+          <div>
+            <span class="text-[10px] uppercase text-slate-400 block font-bold">Target Threat IP</span>
+            <span id="aiModalIp" class="font-bold text-slate-800 dark:text-cyber-cyan font-mono select-all">185.220.101.5</span>
+          </div>
+          <div>
+            <span class="text-[10px] uppercase text-slate-400 block font-bold">Attack Classification</span>
+            <span id="aiModalType" class="font-bold text-red-600 dark:text-cyber-red font-mono">DDoS SYN Flood</span>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="text-xs uppercase font-bold text-slate-500 dark:text-slate-400 tracking-wider mb-1 flex items-center gap-1.5">
+            <i data-lucide="terminal" class="w-3.5 h-3.5 text-blue-500 dark:text-cyber-neon"></i>
+            Sentinel Neural Intel Assessment
+          </h4>
+          <div id="aiModalAssessment" class="p-3.5 rounded-xl leading-relaxed text-xs bg-slate-50 dark:bg-black/50 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300">
+            Analyzing telemetry signatures...
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <h4 class="text-xs uppercase font-bold text-slate-500 dark:text-slate-400 tracking-wider flex items-center gap-1.5">
+              <i data-lucide="shield" class="w-3.5 h-3.5 text-emerald-500 dark:text-cyber-cyan"></i>
+              Mitigation Rule (iptables / eBPF / nftables)
+            </h4>
+            <span class="text-[10px] text-slate-400 font-mono">Ready to apply</span>
+          </div>
+          
+          <div class="relative group">
+            <div class="p-3 pr-24 rounded-lg bg-slate-900 text-emerald-400 text-xs overflow-x-auto border border-slate-800 font-mono">
+              <code id="aiModalRule">iptables -A INPUT -s 185.220.101.5 -j DROP</code>
+            </div>
+            <button id="copyRuleBtn" class="absolute right-2 top-2 px-2.5 py-1 text-[11px] font-mono rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 flex items-center gap-1.5 transition-all active:scale-95">
+              <i id="copyRuleIcon" data-lucide="copy" class="w-3 h-3"></i>
+              <span id="copyRuleText">Copy</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="flex items-center justify-end gap-3 px-6 py-3.5 border-t border-slate-200 dark:border-cyber-border bg-slate-50 dark:bg-cyber-card">
+        <button id="closeAiModalBtn2" class="px-4 py-2 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors font-mono">
+          Dismiss
+        </button>
+        <button id="aiModalMitigateBtn" class="px-4 py-2 text-xs font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 dark:bg-cyber-neon dark:text-black dark:hover:bg-emerald-400 font-mono transition-all shadow-sm active:scale-95">
+          Execute Immediate Block
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 8. JAVASCRIPT LOGIC & SUPABASE INTEGRATION                                -->
+  <!-- ========================================================================= -->
+  <script>
+    /* =========================================================================
+       SUPABASE CONFIGURATION & REALTIME SETUP (Configured with Live Project)
+       ========================================================================= */
+    const SUPABASE_CONFIG = {
+      ENABLED: true,
+      URL: 'https://zdcvfkannwgnsmocpaea.supabase.co',
+      ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpkY3Zma2FubndnbnNtb2NwYWVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE1MjYyNzcsImV4cCI6MjEwNzEwMjI3N30.jn9-FGkd2KgcfwkY339DntAKpbFlTnyy2xNHBoK_Emo',
+    };
+
+    let supabaseClient = null;
+
+    /* -------------------------------------------------------------------------
+       STATE & RICH INITIAL THREAT TELEMETRY DATA (With ASNs & Target Ports)
+       ------------------------------------------------------------------------- */
+    const DEFAULT_SCENARIO_THREATS = [
+      {
+        id: 'thr-live-01',
+        created_at: new Date(Date.now() - 1000 * 20).toISOString(),
+        source_ip: '185.220.101.5',
+        asn: 'AS12389 (Rostelecom)',
+        target_port: 'TCP:443 (HTTPS Ingress)',
+        origin_country: 'RU',
+        country_name: 'Russia',
+        flag: '🇷🇺',
+        attack_type: 'DDoS SYN Flood',
+        severity: 'Critical',
+        status: 'Active'
+      },
+      {
+        id: 'thr-live-02',
+        created_at: new Date(Date.now() - 1000 * 65).toISOString(),
+        source_ip: '45.154.255.89',
+        asn: 'AS4134 (China Telecom)',
+        target_port: 'TCP:8080 (REST API Gateway)',
+        origin_country: 'CN',
+        country_name: 'China',
+        flag: '🇨🇳',
+        attack_type: 'SQL Injection',
+        severity: 'High',
+        status: 'Active'
+      },
+      {
+        id: 'thr-live-03',
+        created_at: new Date(Date.now() - 1000 * 120).toISOString(),
+        source_ip: '203.145.109.111',
+        asn: 'AS7552 (Viettel Corp)',
+        target_port: 'TCP:80 (HTTP / Internal Proxy)',
+        origin_country: 'VN',
+        country_name: 'Vietnam',
+        flag: '🇻🇳',
+        attack_type: 'SSRF Cloud Metadata Exfil',
+        severity: 'Critical',
+        status: 'Active'
+      },
+      {
+        id: 'thr-live-04',
+        created_at: new Date(Date.now() - 1000 * 300).toISOString(),
+        source_ip: '103.251.167.20',
+        asn: 'AS20001 (APT38 Lazarus Net)',
+        target_port: 'TCP:443 (Envoy Gateway)',
+        origin_country: 'KP',
+        country_name: 'North Korea',
+        flag: '🇰🇵',
+        attack_type: 'Zero-Day RCE Exploit',
+        severity: 'Critical',
+        status: 'Blocked'
+      },
+      {
+        id: 'thr-live-05',
+        created_at: new Date(Date.now() - 1000 * 550).toISOString(),
+        source_ip: '194.26.29.112',
+        asn: 'AS58224 (Telecommunication Co Iran)',
+        target_port: 'TCP:22 (SSH Bastion)',
+        origin_country: 'IR',
+        country_name: 'Iran',
+        flag: '🇮🇷',
+        attack_type: 'SSH Brute Force',
+        severity: 'Medium',
+        status: 'Blocked'
+      },
+      {
+        id: 'thr-live-06',
+        created_at: new Date(Date.now() - 1000 * 900).toISOString(),
+        source_ip: '91.240.118.172',
+        asn: 'AS28573 (Claro Brasil)',
+        target_port: 'TCP:5432 (PostgreSQL Auth)',
+        origin_country: 'BR',
+        country_name: 'Brazil',
+        flag: '🇧🇷',
+        attack_type: 'API Credential Stuffing',
+        severity: 'High',
+        status: 'Blocked'
+      }
+    ];
+
+    let threats = JSON.parse(JSON.stringify(DEFAULT_SCENARIO_THREATS));
+    let autoDefenseEnabled = true;
+    let liveStreamActive = false;
+    let liveStreamInterval = null;
+    let soundEnabled = true;
+    let selectedThreatForAi = null;
+    let totalTrafficCounter = 1504965;
+    const pendingQuarantines = new Set();
+
+    // Attack Vectors & Targets Pool
+    const ATTACK_POOL = [
+      { type: 'DDoS SYN Flood', severity: 'Critical', port: 'TCP:443 (HTTPS Ingress)' },
+      { type: 'SQL Injection', severity: 'High', port: 'TCP:8080 (REST API)' },
+      { type: 'Zero-Day RCE Exploit', severity: 'Critical', port: 'TCP:443 (Envoy Ingress)' },
+      { type: 'SSH Brute Force', severity: 'Medium', port: 'TCP:22 (SSH Bastion)' },
+      { type: 'API Credential Stuffing', severity: 'High', port: 'TCP:5432 (Postgres Vault)' },
+      { type: 'Cross-Site Scripting (XSS)', severity: 'Low', port: 'TCP:80 (Web Frontend)' },
+      { type: 'DNS Amplification', severity: 'High', port: 'UDP:53 (CoreDNS)' },
+      { type: 'Ransomware C2 Beacon', severity: 'Critical', port: 'TCP:8443 (Outbound Proxy)' },
+      { type: 'SSRF Cloud Metadata Exfil', severity: 'Critical', port: 'TCP:80 (EC2 Metadata)' },
+      { type: 'XML External Entity (XXE)', severity: 'Medium', port: 'TCP:8080 (SOAP Parser)' }
+    ];
+
+    const ASN_POOL = [
+      'AS12389 (Rostelecom)',
+      'AS4134 (China Telecom)',
+      'AS15169 (Google Cloud Proxy)',
+      'AS8075 (Microsoft Azure)',
+      'AS20001 (Kimsuky Botnet)',
+      'AS58224 (Iran Data Gateway)',
+      'AS28573 (Claro Brasil)',
+      'AS13335 (Cloudflare Tor Exit)',
+      'AS3257 (GTT Communications)',
+      'AS6939 (Hurricane Electric)'
+    ];
+
+    const COUNTRY_POOL = [
+      { code: 'RU', name: 'Russia', flag: '🇷🇺' },
+      { code: 'CN', name: 'China', flag: '🇨🇳' },
+      { code: 'US', name: 'United States', flag: '🇺🇸' },
+      { code: 'KP', name: 'North Korea', flag: '🇰🇵' },
+      { code: 'IR', name: 'Iran', flag: '🇮🇷' },
+      { code: 'BR', name: 'Brazil', flag: '🇧🇷' },
+      { code: 'DE', name: 'Germany', flag: '🇩🇪' },
+      { code: 'NL', name: 'Netherlands', flag: '🇳🇱' },
+      { code: 'UA', name: 'Ukraine', flag: '🇺🇦' },
+      { code: 'VN', name: 'Vietnam', flag: '🇻🇳' },
+      { code: 'GB', name: 'United Kingdom', flag: '🇬🇧' },
+      { code: 'SG', name: 'Singapore', flag: '🇸🇬' }
+    ];
+
+    /* -------------------------------------------------------------------------
+       DOM REFERENCES
+       ------------------------------------------------------------------------- */
+    const threatTableBody = document.getElementById('threatTableBody');
+    const autoDefenseToggle = document.getElementById('autoDefenseToggle');
+    const autoDefenseLabel = document.getElementById('autoDefenseLabel');
+    const simulateBtn = document.getElementById('simulateBtn');
+    const reseedBtn = document.getElementById('reseedBtn');
+    const exportBtn = document.getElementById('exportBtn');
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const soundToggleBtn = document.getElementById('soundToggleBtn');
+    const soundIcon = document.getElementById('soundIcon');
+    const liveStreamToggleBtn = document.getElementById('liveStreamToggleBtn');
+    const liveStreamLabel = document.getElementById('liveStreamLabel');
+    const liveStreamDot = document.getElementById('liveStreamDot');
+    const searchFilter = document.getElementById('searchFilter');
+    const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+    const recordCountBadge = document.getElementById('recordCountBadge');
+    const syncStatusText = document.getElementById('syncStatusText');
+    const kernelLogsContainer = document.getElementById('kernelLogsContainer');
+
+    // Stat Elements
+    const statTotalTraffic = document.getElementById('statTotalTraffic');
+    const statActiveThreats = document.getElementById('statActiveThreats');
+    const statBlockedThreats = document.getElementById('statBlockedThreats');
+    const activeThreatBadge = document.getElementById('activeThreatBadge');
+
+    // Live Alert Banner
+    const liveAlertBanner = document.getElementById('liveAlertBanner');
+    const liveAlertMessage = document.getElementById('liveAlertMessage');
+
+    // Chart Canvas Elements
+    const trafficCanvas = document.getElementById('trafficCanvas');
+    const liveMbpsValue = document.getElementById('liveMbpsValue');
+    const liveAnomalySpikes = document.getElementById('liveAnomalySpikes');
+    const chartAlertBadge = document.getElementById('chartAlertBadge');
+
+    // AI Modal Elements
+    const aiModal = document.getElementById('aiModal');
+    const closeAiModalBtn = document.getElementById('closeAiModalBtn');
+    const closeAiModalBtn2 = document.getElementById('closeAiModalBtn2');
+    const aiModalMitigateBtn = document.getElementById('aiModalMitigateBtn');
+    const aiModalIp = document.getElementById('aiModalIp');
+    const aiModalType = document.getElementById('aiModalType');
+    const aiModalAssessment = document.getElementById('aiModalAssessment');
+    const aiModalRule = document.getElementById('aiModalRule');
+    const copyRuleBtn = document.getElementById('copyRuleBtn');
+    const copyRuleText = document.getElementById('copyRuleText');
+
+    /* -------------------------------------------------------------------------
+       SCI-FI WEB AUDIO SYNTHESIZER (Pure Web Audio API - Zero External Files)
+       ------------------------------------------------------------------------- */
+    let audioCtx = null;
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      return audioCtx;
+    }
+
+    function playSound(type) {
+      if (!soundEnabled) return;
+      try {
+        const ctx = getAudioContext();
+        if (ctx.state === 'suspended') ctx.resume();
+
+        if (type === 'alarm') {
+          // Futuristic cyber threat alarm blip
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(880, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.18);
+          gain.gain.setValueAtTime(0.08, ctx.currentTime);
+          gain.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.18);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.18);
+        } else if (type === 'quarantine') {
+          // Futuristic laser lock / quarantine chime
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(520, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(1040, ctx.currentTime + 0.15);
+          gain.gain.setValueAtTime(0.09, ctx.currentTime);
+          gain.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.15);
+        } else if (type === 'click') {
+          // Subtle UI cyber tick
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(1200, ctx.currentTime);
+          gain.gain.setValueAtTime(0.03, ctx.currentTime);
+          gain.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.05);
+        }
+      } catch (err) {
+        // Audio policy or unsupported
+      }
+    }
+
+    soundToggleBtn.addEventListener('click', () => {
+      soundEnabled = !soundEnabled;
+      soundIcon.setAttribute('data-lucide', soundEnabled ? 'volume-2' : 'volume-x');
+      lucide.createIcons();
+      showToast(soundEnabled ? 'Cyber Audio Effects: ENABLED' : 'Cyber Audio Effects: MUTED');
+    });
+
+    /* -------------------------------------------------------------------------
+       INITIALIZATION
+       ------------------------------------------------------------------------- */
+    document.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      initSupabase();
+      renderTable();
+      updateStats();
+      lucide.createIcons();
+      startTrafficTick();
+      startTelemetryCanvas();
+      seedKernelLogs();
+    });
+
+    /* -------------------------------------------------------------------------
+       THEME MANAGEMENT (Dark Hacker / Light Corporate SaaS)
+       ------------------------------------------------------------------------- */
+    function initTheme() {
+      const storedTheme = localStorage.getItem('sentinel_theme');
+      if (storedTheme === 'light') {
+        document.documentElement.classList.remove('dark');
+      } else {
+        document.documentElement.classList.add('dark');
+      }
+    }
+
+    themeToggleBtn.addEventListener('click', () => {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('sentinel_theme', isDark ? 'dark' : 'light');
+      lucide.createIcons();
+      playSound('click');
+      showToast(isDark ? 'Hacker Cyber Dark Mode activated' : 'Corporate Clean SaaS Light Mode activated');
+    });
+
+    /* -------------------------------------------------------------------------
+       AUTO DEFENSE TOGGLE LOGIC
+       ------------------------------------------------------------------------- */
+    autoDefenseToggle.addEventListener('change', (e) => {
+      autoDefenseEnabled = e.target.checked;
+      playSound('click');
+      if (autoDefenseEnabled) {
+        autoDefenseLabel.textContent = 'ARMED';
+        autoDefenseLabel.className = 'text-xs font-semibold text-emerald-600 dark:text-cyber-neon font-mono';
+        showToast('Autonomous IPS: ARMED (2-second automatic quarantine active)');
+      } else {
+        autoDefenseLabel.textContent = 'DISARMED';
+        autoDefenseLabel.className = 'text-xs font-semibold text-amber-500 dark:text-cyber-yellow font-mono';
+        showToast('Autonomous IPS: DISARMED (Manual operator approval required)');
+      }
+    });
+
+    /* -------------------------------------------------------------------------
+       LIVE AMBIENT ATTACK STREAM (Automatic Background Traffic Generator)
+       ------------------------------------------------------------------------- */
+    liveStreamToggleBtn.addEventListener('click', () => {
+      liveStreamActive = !liveStreamActive;
+      playSound('click');
+      if (liveStreamActive) {
+        liveStreamLabel.textContent = 'Live Stream: ON';
+        liveStreamLabel.classList.add('text-cyan-400');
+        liveStreamDot.className = 'w-2 h-2 rounded-full bg-cyan-400 animate-ping';
+        showToast('Live Incursion Stream: ON (Streaming periodic zero-day incursions)');
+        liveStreamInterval = setInterval(() => {
+          simulateAttack(true);
+        }, 11000);
+      } else {
+        clearInterval(liveStreamInterval);
+        liveStreamLabel.textContent = 'Live Stream: OFF';
+        liveStreamLabel.classList.remove('text-cyan-400');
+        liveStreamDot.className = 'w-2 h-2 rounded-full bg-slate-400';
+        showToast('Live Incursion Stream: OFF');
+      }
+    });
+
+    /* -------------------------------------------------------------------------
+       RESEED / RESET SCENARIO (Never an empty or all-blocked state!)
+       ------------------------------------------------------------------------- */
+    reseedBtn.addEventListener('click', () => {
+      playSound('click');
+      threats = JSON.parse(JSON.stringify(DEFAULT_SCENARIO_THREATS)).map((t, idx) => ({
+        ...t,
+        created_at: new Date(Date.now() - (idx * 45000)).toISOString()
+      }));
+      renderTable();
+      updateStats();
+      showToast('Scenario re-seeded: 3 Active critical incursions injected for demonstration.');
+      logKernelEvent('SCENARIO_RELOAD', '127.0.0.1', 'All telemetry re-initialized with live baseline');
+    });
+
+    /* -------------------------------------------------------------------------
+       TABLE RENDERING & FILTERING
+       ------------------------------------------------------------------------- */
+    function formatTime(isoString) {
+      try {
+        const d = new Date(isoString);
+        return d.toLocaleTimeString('en-US', { hour12: false });
+      } catch (e) {
+        return 'Just now';
+      }
+    }
+
+    function renderTable() {
+      const filterText = (searchFilter.value || '').trim().toLowerCase();
+      
+      const filtered = threats.filter(t => {
+        if (!filterText) return true;
+        return (
+          t.source_ip.toLowerCase().includes(filterText) ||
+          t.attack_type.toLowerCase().includes(filterText) ||
+          (t.asn && t.asn.toLowerCase().includes(filterText)) ||
+          (t.country_name && t.country_name.toLowerCase().includes(filterText)) ||
+          t.origin_country.toLowerCase().includes(filterText) ||
+          (t.severity && t.severity.toLowerCase().includes(filterText)) ||
+          t.status.toLowerCase().includes(filterText)
+        );
+      });
+
+      if (filterText) {
+        recordCountBadge.textContent = `${filtered.length} of ${threats.length} Events`;
+      } else {
+        recordCountBadge.textContent = `${threats.length} Events`;
+      }
+
+      if (filtered.length === 0) {
+        threatTableBody.innerHTML = `
+          <tr>
+            <td colspan="6" class="text-center py-12 text-slate-400 dark:text-slate-500 font-mono">
+              <i data-lucide="shield-check" class="w-9 h-9 mx-auto mb-2 opacity-60"></i>
+              No threat telemetry matching "${escapeHtml(filterText)}"
+            </td>
+          </tr>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      threatTableBody.innerHTML = filtered.map(item => createRowHtml(item)).join('');
+      lucide.createIcons();
+    }
+
+    function createRowHtml(threat) {
+      const isActive = threat.status === 'Active';
+      const isPendingQuarantine = pendingQuarantines.has(threat.id);
+
+      // Status Badge Design
+      const statusBadge = isActive ? `
+        <div class="flex flex-col items-start gap-1">
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700 border border-red-200 dark:bg-cyber-red/15 dark:text-cyber-red dark:border-cyber-red/30 shadow-[0_0_12px_rgba(255,0,85,0.25)]">
+            <span class="w-1.5 h-1.5 rounded-full bg-red-600 dark:bg-cyber-red animate-ping"></span>
+            Active Threat
+          </span>
+          ${isPendingQuarantine ? `
+            <span class="auto-defense-countdown inline-flex items-center gap-1 text-[10px] text-amber-600 dark:text-cyber-yellow font-mono">
+              <i data-lucide="timer" class="w-2.5 h-2.5 animate-spin"></i> Auto-blocking in 2s...
+            </span>
+          ` : ''}
+        </div>
+      ` : `
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200 dark:bg-cyber-neon/15 dark:text-cyber-neon dark:border-cyber-neon/30 transition-all duration-300">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+          Blocked
+        </span>
+      `;
+
+      // Severity Badge
+      const severityColor = (threat.severity === 'Critical')
+        ? 'bg-red-100 text-red-800 border-red-300 dark:bg-cyber-red/20 dark:text-cyber-red dark:border-cyber-red/40'
+        : (threat.severity === 'High')
+        ? 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-cyber-yellow/20 dark:text-cyber-yellow dark:border-cyber-yellow/40'
+        : (threat.severity === 'Medium')
+        ? 'bg-blue-100 text-blue-800 border-blue-300 dark:bg-cyan-950/60 dark:text-cyan-400 dark:border-cyan-800'
+        : 'bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700';
+
+      return `
+        <tr id="row-${threat.id}" class="hover:bg-slate-50/80 dark:hover:bg-cyber-card/70 transition-colors duration-150 group">
+          
+          <!-- Timestamp -->
+          <td class="py-3.5 px-4 text-slate-500 dark:text-slate-400 whitespace-nowrap">
+            <span class="inline-flex items-center gap-1.5">
+              <i data-lucide="clock" class="w-3.5 h-3.5 opacity-60"></i>
+              ${formatTime(threat.created_at)}
+            </span>
+          </td>
+
+          <!-- Source IP & ASN -->
+          <td class="py-3.5 px-4 whitespace-nowrap">
+            <div class="flex flex-col gap-0.5">
+              <span onclick="copyTextToClipboard('${threat.source_ip}')" title="Click to copy IP" class="cursor-pointer font-bold px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono tracking-tight text-xs text-blue-600 dark:text-cyber-cyan select-all inline-flex items-center gap-1.5 transition-colors w-fit">
+                ${threat.source_ip}
+                <i data-lucide="copy" class="w-3 h-3 opacity-0 group-hover:opacity-60 transition-opacity"></i>
+              </span>
+              <span class="text-[10px] text-slate-400 font-mono">${threat.asn || 'AS12389 (Autonomous Net)'}</span>
+            </div>
+          </td>
+
+          <!-- Origin Country -->
+          <td class="py-3.5 px-4 text-slate-700 dark:text-slate-300 whitespace-nowrap">
+            <span class="inline-flex items-center gap-1.5">
+              <span class="text-base">${threat.flag || '🌐'}</span>
+              <span>${threat.country_name || threat.origin_country}</span>
+              <span class="text-[10px] text-slate-400 font-semibold">(${threat.origin_country})</span>
+            </span>
+          </td>
+
+          <!-- Attack Type, Severity & Target Port -->
+          <td class="py-3.5 px-4 whitespace-nowrap">
+            <div class="flex flex-col gap-1">
+              <div class="flex items-center gap-2">
+                <span class="font-medium text-slate-800 dark:text-slate-200">
+                  ${threat.attack_type}
+                </span>
+                <span class="px-1.5 py-0.2 rounded text-[10px] font-bold border font-mono uppercase ${severityColor}">
+                  ${threat.severity || 'High'}
+                </span>
+              </div>
+              <span class="text-[10px] text-slate-400 font-mono flex items-center gap-1">
+                <i data-lucide="shield" class="w-2.5 h-2.5 opacity-60"></i> Target: ${threat.target_port || 'TCP:443 (HTTPS Ingress)'}
+              </span>
+            </div>
+          </td>
+
+          <!-- Status -->
+          <td class="py-3.5 px-4 whitespace-nowrap status-cell">
+            ${statusBadge}
+          </td>
+
+          <!-- Actions -->
+          <td class="py-3.5 px-4 text-right whitespace-nowrap action-cell">
+            <div class="inline-flex items-center gap-2">
+              
+              <!-- Ask AI Button -->
+              <button 
+                onclick="handleAskAi('${threat.id}')"
+                class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all duration-150 bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300 dark:bg-cyber-card dark:border-cyber-border dark:text-cyan-400 dark:hover:bg-cyan-950/40 dark:hover:border-cyber-cyan shadow-sm active:scale-95"
+                title="Run Sentinel AI heuristic assessment"
+              >
+                <i data-lucide="sparkles" class="w-3.5 h-3.5 text-blue-500 dark:text-cyber-neon"></i>
+                <span>Ask AI</span>
+              </button>
+
+              <!-- Block IP Button -->
+              ${isActive ? `
+                <button 
+                  onclick="handleBlockIp('${threat.id}')"
+                  class="block-btn inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition-all duration-200 bg-red-600 hover:bg-red-700 text-white shadow-sm hover:shadow active:scale-95 dark:bg-cyber-red/20 dark:text-cyber-red dark:border dark:border-cyber-red/40 dark:hover:bg-cyber-red dark:hover:text-black"
+                  title="Push dynamic drop rule to firewall"
+                >
+                  <i data-lucide="shield-x" class="w-3.5 h-3.5"></i>
+                  <span>Block IP</span>
+                </button>
+              ` : `
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 dark:text-cyber-neon dark:bg-cyber-neon/10 dark:border-cyber-neon/20 cursor-default">
+                  <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+                  Mitigated
+                </span>
+              `}
+
+            </div>
+          </td>
+
+        </tr>
+      `;
+    }
+
+    function escapeHtml(str) {
+      return (str || '').replace(/[&<>"']/g, m => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      }[m]));
+    }
+
+    /* -------------------------------------------------------------------------
+       SEARCH FILTER LISTENER
+       ------------------------------------------------------------------------- */
+    searchFilter.addEventListener('input', () => {
+      renderTable();
+    });
+
+    clearFiltersBtn.addEventListener('click', () => {
+      searchFilter.value = '';
+      renderTable();
+    });
+
+    /* -------------------------------------------------------------------------
+       STATISTICS & METRIC UPDATE LOGIC
+       ------------------------------------------------------------------------- */
+    function updateStats() {
+      const activeCount = threats.filter(t => t.status === 'Active').length;
+      const blockedCount = threats.filter(t => t.status === 'Blocked').length;
+
+      statActiveThreats.textContent = activeCount;
+      statBlockedThreats.textContent = blockedCount;
+
+      // Update color / alert if active threats exist
+      if (activeCount > 0) {
+        liveAlertBanner.className = 'transition-all duration-300 rounded-xl p-3.5 border flex items-center justify-between text-xs sm:text-sm font-mono bg-red-50 border-red-200 text-red-800 dark:bg-cyber-red/10 dark:border-cyber-red/40 dark:text-cyber-red shadow-[0_0_15px_rgba(255,0,85,0.15)]';
+        liveAlertMessage.textContent = `ALERT: ${activeCount} ACTIVE BREACH ATTEMPT${activeCount > 1 ? 'S' : ''} DETECTED ON EDGE INTERFACE`;
+        activeThreatBadge.className = 'text-xs font-mono px-2 py-0.5 rounded bg-red-100 text-red-700 dark:bg-cyber-red/20 dark:text-cyber-red border border-red-200 dark:border-cyber-red/30';
+        activeThreatBadge.textContent = 'HIGH RISK';
+      } else {
+        liveAlertBanner.className = 'transition-all duration-300 rounded-xl p-3.5 border flex items-center justify-between text-xs sm:text-sm font-mono bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-cyber-neon/10 dark:border-cyber-neon/30 dark:text-cyber-neon';
+        liveAlertMessage.textContent = `PERIMETER CLEAR: ALL THREATS SUCCESSFULLY QUARANTINED`;
+        activeThreatBadge.className = 'text-xs font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 dark:bg-cyber-neon/20 dark:text-cyber-neon border border-emerald-200 dark:border-cyber-neon/30';
+        activeThreatBadge.textContent = 'ZERO BREACH';
+      }
+    }
+
+    // Realistic ambient packet counter tick
+    function startTrafficTick() {
+      setInterval(() => {
+        totalTrafficCounter += Math.floor(Math.random() * 32) + 12;
+        statTotalTraffic.textContent = totalTrafficCounter.toLocaleString();
+      }, 1500);
+    }
+
+    /* -------------------------------------------------------------------------
+       SIMULATE ATTACK ACTION
+       ------------------------------------------------------------------------- */
+    simulateBtn.addEventListener('click', () => {
+      simulateAttack();
+    });
+
+    function generateRealisticPublicIp() {
+      const r = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+      const firstOctetPool = [45, 82, 91, 103, 114, 142, 178, 185, 194, 203];
+      const octet1 = firstOctetPool[Math.floor(Math.random() * firstOctetPool.length)];
+      return `${octet1}.${r(1, 254)}.${r(1, 254)}.${r(2, 254)}`;
+    }
+
+    function simulateAttack(isAmbient = false) {
+      const randomCountry = COUNTRY_POOL[Math.floor(Math.random() * COUNTRY_POOL.length)];
+      const randomAttack = ATTACK_POOL[Math.floor(Math.random() * ATTACK_POOL.length)];
+      const randomAsn = ASN_POOL[Math.floor(Math.random() * ASN_POOL.length)];
+      const newThreatId = 'thr-' + Math.random().toString(36).substring(2, 9);
+
+      const newThreat = {
+        id: newThreatId,
+        created_at: new Date().toISOString(),
+        source_ip: generateRealisticPublicIp(),
+        asn: randomAsn,
+        target_port: randomAttack.port,
+        origin_country: randomCountry.code,
+        country_name: randomCountry.name,
+        flag: randomCountry.flag,
+        attack_type: randomAttack.type,
+        severity: randomAttack.severity,
+        status: 'Active'
+      };
+
+      // Play audio alarm
+      playSound('alarm');
+
+      // Trigger spike on live canvas graph
+      triggerGraphSpike();
+
+      // Add to beginning of threat state array
+      threats.unshift(newThreat);
+
+      // Increment packet surge
+      totalTrafficCounter += Math.floor(Math.random() * 3500) + 1800;
+      statTotalTraffic.textContent = totalTrafficCounter.toLocaleString();
+
+      // Button animation pulse
+      simulateBtn.classList.add('scale-105');
+      setTimeout(() => simulateBtn.classList.remove('scale-105'), 180);
+
+      // Track if Auto-Defense should handle this
+      if (autoDefenseEnabled) {
+        pendingQuarantines.add(newThreatId);
+      }
+
+      // Render row with animation at top of table
+      prependThreatRow(newThreat);
+      updateStats();
+
+      // Log to eBPF kernel terminal
+      logKernelEvent('INGRESS_ANOMALY', newThreat.source_ip, `${newThreat.attack_type} on ${newThreat.target_port}`);
+
+      showToast(`Incursion detected: ${newThreat.source_ip} (${newThreat.attack_type})`);
+
+      // SUPABASE PERSISTENCE (Writes to live Supabase DB)
+      if (SUPABASE_CONFIG.ENABLED && supabaseClient) {
+        supabaseClient.from('network_threats').insert([{
+          source_ip: newThreat.source_ip,
+          origin_country: newThreat.origin_country,
+          attack_type: newThreat.attack_type,
+          severity: newThreat.severity,
+          status: newThreat.status
+        }]).then(({ error }) => {
+          if (error) console.error('[Supabase Insert Error]:', error);
+        });
+      }
+
+      // AUTONOMOUS IPS (Auto-Defense Mode):
+      // If ARMED (ON), automatically change status from 'Active' to 'Blocked' after exactly 2.0s
+      if (autoDefenseEnabled) {
+        setTimeout(() => {
+          pendingQuarantines.delete(newThreatId);
+          handleBlockIp(newThreatId, true);
+        }, 2000);
+      }
+    }
+
+    function prependThreatRow(threat) {
+      const filterText = (searchFilter.value || '').trim().toLowerCase();
+      if (filterText && 
+          !threat.source_ip.toLowerCase().includes(filterText) && 
+          !threat.attack_type.toLowerCase().includes(filterText) &&
+          !threat.origin_country.toLowerCase().includes(filterText)) {
+        renderTable();
+        return;
+      }
+
+      const tempContainer = document.createElement('tbody');
+      tempContainer.innerHTML = createRowHtml(threat);
+      const newRow = tempContainer.firstElementChild;
+      
+      // Add sliding enter animation
+      newRow.classList.add('animate-threat-enter');
+
+      // Clear empty state row if present
+      if (threatTableBody.querySelector('td[colspan="6"]')) {
+        threatTableBody.innerHTML = '';
+      }
+
+      threatTableBody.insertBefore(newRow, threatTableBody.firstChild);
+      recordCountBadge.textContent = `${threats.length} Events`;
+      lucide.createIcons();
+    }
+
+    /* -------------------------------------------------------------------------
+       BLOCK IP ACTION
+       ------------------------------------------------------------------------- */
+    window.handleBlockIp = function(threatId, isAutoTriggered = false) {
+      const targetThreat = threats.find(t => t.id === threatId);
+      if (!targetThreat || targetThreat.status === 'Blocked') return;
+
+      // Update state
+      targetThreat.status = 'Blocked';
+      pendingQuarantines.delete(threatId);
+
+      // Play quarantine audio chime
+      playSound('quarantine');
+
+      // Log to kernel terminal
+      logKernelEvent('eBPF_DROP_COMMIT', targetThreat.source_ip, `Kernel filter drop rule synthesized at XDP hook`);
+
+      // Smooth visual feedback on target row
+      const row = document.getElementById(`row-${threatId}`);
+      if (row) {
+        // Flash row with green mitigation indicator
+        row.classList.add('transition-all', 'duration-500');
+        row.style.backgroundColor = document.documentElement.classList.contains('dark') 
+          ? 'rgba(0, 255, 157, 0.20)' 
+          : 'rgba(16, 185, 129, 0.20)';
+
+        setTimeout(() => {
+          row.style.backgroundColor = '';
+        }, 800);
+
+        const statusCell = row.querySelector('.status-cell');
+        if (statusCell) {
+          statusCell.innerHTML = `
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200 dark:bg-cyber-neon/15 dark:text-cyber-neon dark:border-cyber-neon/30 transition-all duration-300">
+              <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+              Blocked
+            </span>
+          `;
+        }
+
+        const actionCell = row.querySelector('.action-cell');
+        if (actionCell) {
+          actionCell.innerHTML = `
+            <div class="inline-flex items-center gap-2">
+              <button 
+                onclick="handleAskAi('${targetThreat.id}')"
+                class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all duration-150 bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300 dark:bg-cyber-card dark:border-cyber-border dark:text-cyan-400 dark:hover:bg-cyan-950/40 dark:hover:border-cyber-cyan shadow-sm active:scale-95"
+              >
+                <i data-lucide="sparkles" class="w-3.5 h-3.5 text-blue-500 dark:text-cyber-neon"></i>
+                <span>Ask AI</span>
+              </button>
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 dark:text-cyber-neon dark:bg-cyber-neon/10 dark:border-cyber-neon/20 cursor-default">
+                <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+                Mitigated
+              </span>
+            </div>
+          `;
+        }
+
+        lucide.createIcons();
+      }
+
+      updateStats();
+
+      if (isAutoTriggered) {
+        showToast(`Auto-IPS: Neutralized ${targetThreat.source_ip} (Blocked)`);
+      } else {
+        showToast(`Manual Quarantine: ${targetThreat.source_ip} successfully blocked`);
+      }
+
+      // SUPABASE SYNC
+      if (SUPABASE_CONFIG.ENABLED && supabaseClient) {
+        supabaseClient
+          .from('network_threats')
+          .update({ status: 'Blocked' })
+          .eq('source_ip', targetThreat.source_ip)
+          .then(({ error }) => {
+            if (error) console.error('[Supabase Update Error]:', error);
+          });
+      }
+    };
+
+    /* -------------------------------------------------------------------------
+       ASK AI INTEL MODAL & MITRE ATT&CK HEURISTICS
+       ------------------------------------------------------------------------- */
+    window.handleAskAi = function(threatId) {
+      playSound('click');
+      const threat = threats.find(t => t.id === threatId);
+      if (!threat) return;
+      selectedThreatForAi = threat;
+
+      aiModalIp.textContent = threat.source_ip;
+      aiModalType.textContent = `${threat.attack_type} (${threat.severity || 'High'})`;
+
+      let analysisText = '';
+      let iptablesRule = '';
+
+      if (threat.attack_type.includes('DDoS')) {
+        analysisText = `Anomaly signature detected high-volumetric TCP SYN flood exceeding 145,000 packets/sec originating from ${threat.source_ip} (${threat.country_name || threat.origin_country}). Maps to MITRE ATT&CK T1498.001 (Direct Network Flood). Edge recommendation: Activate SYN cookies, drop source prefix at upstream border gateway, and enforce eBPF XDP filter.`;
+        iptablesRule = `iptables -I INPUT -p tcp --syn -s ${threat.source_ip} -j DROP && tc qdisc add dev eth0 root bpf obj xdp_drop.o`;
+      } else if (threat.attack_type.includes('SQL')) {
+        analysisText = `Deep packet payload analysis identified SQL injection attack vectors (UNION SELECT / OR '1'='1' tautology) targeting database API endpoints. Maps to MITRE ATT&CK T1190 (Exploit Public-Facing Application). Edge recommendation: Block source IP immediately, verify prepared statements in SQL ORM layer, and review database access logs.`;
+        iptablesRule = `iptables -A INPUT -s ${threat.source_ip} -m string --string "UNION SELECT" --algo bm -j DROP`;
+      } else if (threat.attack_type.includes('Zero-Day') || threat.attack_type.includes('RCE')) {
+        analysisText = `CRITICAL ALERT: Heuristic shellcode execution & novel buffer offset sequence observed in HTTP POST headers from ${threat.source_ip}. Maps to MITRE ATT&CK T1059.004 (Unix Shell Execution) & T1068 (Privilege Escalation). Edge recommendation: Total network isolation of destination container, immediate forensic memory snapshot, and reject all route advertisements.`;
+        iptablesRule = `iptables -A FORWARD -s ${threat.source_ip} -j REJECT --reject-with icmp-net-unreachable && nft add element inet filter blocklist { ${threat.source_ip} }`;
+      } else if (threat.attack_type.includes('SSH')) {
+        analysisText = `High frequency authentication failure burst (>45 attempts/sec) detected on Port 22 from ${threat.source_ip}. Maps to MITRE ATT&CK T1110.001 (Password Guessing). Edge recommendation: Block source IP, cycle compromised SSH keys, and restrict Port 22 strictly to trusted WireGuard VPN CIDRs.`;
+        iptablesRule = `iptables -A INPUT -p tcp --dport 22 -s ${threat.source_ip} -j DROP`;
+      } else if (threat.attack_type.includes('SSRF')) {
+        analysisText = `Suspicious internal loopback probe targeting AWS Instance Metadata Service (169.254.169.254) detected from ${threat.source_ip}. Maps to MITRE ATT&CK T1552 (Unsecured Credentials). Edge recommendation: Enforce IMDSv2 token validation and block ingress origin IP.`;
+        iptablesRule = `iptables -A FORWARD -d 169.254.169.254 -s ${threat.source_ip} -j DROP`;
+      } else {
+        analysisText = `Heuristic telemetry score: 94/100. Anomalous behavioral fingerprint observed from ${threat.source_ip}. Maps to MITRE ATT&CK T1071.001 (Application Layer Protocol). Edge recommendation: Enforce edge firewall drop rule and monitor peer ASN traffic.`;
+        iptablesRule = `iptables -A INPUT -s ${threat.source_ip} -j DROP`;
+      }
+
+      aiModalAssessment.textContent = analysisText;
+      aiModalRule.textContent = iptablesRule;
+
+      copyRuleText.textContent = 'Copy';
+      copyRuleBtn.classList.remove('text-emerald-400', 'border-emerald-500/50');
+
+      if (threat.status === 'Blocked') {
+        aiModalMitigateBtn.textContent = 'Already Mitigated';
+        aiModalMitigateBtn.disabled = true;
+        aiModalMitigateBtn.className = 'px-4 py-2 text-xs font-semibold rounded-xl bg-slate-300 dark:bg-slate-800 text-slate-500 font-mono cursor-not-allowed';
+      } else {
+        aiModalMitigateBtn.textContent = 'Execute Immediate Block';
+        aiModalMitigateBtn.disabled = false;
+        aiModalMitigateBtn.className = 'px-4 py-2 text-xs font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 dark:bg-cyber-neon dark:text-black dark:hover:bg-emerald-400 font-mono transition-all shadow-sm active:scale-95';
+      }
+
+      aiModal.classList.remove('hidden');
+      lucide.createIcons();
+    };
+
+    closeAiModalBtn.addEventListener('click', closeAiModal);
+    closeAiModalBtn2.addEventListener('click', closeAiModal);
+
+    function closeAiModal() {
+      aiModal.classList.add('hidden');
+      selectedThreatForAi = null;
+    }
+
+    aiModalMitigateBtn.addEventListener('click', () => {
+      if (selectedThreatForAi) {
+        handleBlockIp(selectedThreatForAi.id);
+        closeAiModal();
+      }
+    });
+
+    aiModal.addEventListener('click', (e) => {
+      if (e.target === aiModal) closeAiModal();
+    });
+
+    copyRuleBtn.addEventListener('click', async () => {
+      const rule = aiModalRule.textContent;
+      await copyTextToClipboard(rule);
+      copyRuleText.textContent = 'Copied!';
+      copyRuleBtn.classList.add('text-emerald-400', 'border-emerald-500/50');
+      setTimeout(() => {
+        copyRuleText.textContent = 'Copy';
+        copyRuleBtn.classList.remove('text-emerald-400', 'border-emerald-500/50');
+      }, 2000);
+    });
+
+    async function copyTextToClipboard(text) {
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.left = '-9999px';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+        }
+        showToast(`Copied to clipboard: ${text.slice(0, 32)}...`);
+      } catch (err) {
+        console.warn('Clipboard copy error:', err);
+      }
+    }
+
+    /* -------------------------------------------------------------------------
+       RFC-4180 COMPLIANT CSV AUDIT EXPORT
+       ------------------------------------------------------------------------- */
+    exportBtn.addEventListener('click', () => {
+      exportThreatsToCsv();
+    });
+
+    function exportThreatsToCsv() {
+      if (threats.length === 0) {
+        showToast('No telemetry events to export.');
+        return;
+      }
+
+      const headers = ['Event_ID', 'Timestamp_UTC', 'Source_IP', 'ASN', 'Target_Port', 'Country_Code', 'Country_Name', 'Attack_Vector', 'Severity', 'Status'];
+      const escapeCsvCell = (val) => {
+        const str = String(val == null ? '' : val);
+        if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+          return `"${str.replace(/"/g, '""')}"`;
+        }
+        return str;
+      };
+
+      const rows = threats.map(t => [
+        escapeCsvCell(t.id),
+        escapeCsvCell(t.created_at),
+        escapeCsvCell(t.source_ip),
+        escapeCsvCell(t.asn || 'AS12389'),
+        escapeCsvCell(t.target_port || 'TCP:443'),
+        escapeCsvCell(t.origin_country),
+        escapeCsvCell(t.country_name || t.origin_country),
+        escapeCsvCell(t.attack_type),
+        escapeCsvCell(t.severity || 'High'),
+        escapeCsvCell(t.status)
+      ]);
+
+      const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\r\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const downloadLink = document.createElement('a');
+      const filename = `sentinel_threat_audit_${new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)}.csv`;
+      downloadLink.setAttribute('href', url);
+      downloadLink.setAttribute('download', filename);
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      URL.revokeObjectURL(url);
+
+      showToast(`Exported ${threats.length} telemetry records to ${filename}`);
+    }
+
+    /* -------------------------------------------------------------------------
+       TOAST NOTIFICATION ENGINE
+       ------------------------------------------------------------------------- */
+    function showToast(msg) {
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-5 right-5 z-50 px-4 py-2.5 rounded-xl border font-mono text-xs shadow-xl transition-all transform duration-300 translate-y-3 opacity-0 bg-slate-900 text-white border-slate-700 dark:bg-cyber-surface dark:border-cyber-cyan dark:text-cyan-300 flex items-center gap-2';
+      toast.innerHTML = `<i data-lucide="info" class="w-4 h-4 text-cyan-400"></i> <span>${escapeHtml(msg)}</span>`;
+      document.body.appendChild(toast);
+      lucide.createIcons();
+
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-3', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('translate-y-3', 'opacity-0');
+        setTimeout(() => toast.remove(), 350);
+      }, 3200);
+    }
+
+    /* -------------------------------------------------------------------------
+       REAL-TIME STREAMING TELEMETRY CANVAS (60 FPS Network Graph)
+       ------------------------------------------------------------------------- */
+    const graphPoints = Array.from({ length: 60 }, () => 30 + Math.random() * 20);
+    let spikeActive = false;
+
+    function triggerGraphSpike() {
+      spikeActive = true;
+      chartAlertBadge.classList.remove('hidden');
+      for (let i = 0; i < 5; i++) {
+        graphPoints[graphPoints.length - 1 - i] = 85 + Math.random() * 15;
+      }
+      liveMbpsValue.textContent = `${(1800 + Math.random() * 900).toFixed(0)} Mbps`;
+      liveAnomalySpikes.textContent = `${(120 + Math.random() * 80).toFixed(0)} pkts/s`;
+      setTimeout(() => {
+        spikeActive = false;
+        chartAlertBadge.classList.add('hidden');
+        liveMbpsValue.textContent = '842 Mbps';
+        liveAnomalySpikes.textContent = '14 pkts/s';
+      }, 3500);
+    }
+
+    function startTelemetryCanvas() {
+      const ctx = trafficCanvas.getContext('2d');
+      function resize() {
+        trafficCanvas.width = trafficCanvas.parentElement.clientWidth * window.devicePixelRatio;
+        trafficCanvas.height = trafficCanvas.parentElement.clientHeight * window.devicePixelRatio;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      let step = 0;
+      function draw() {
+        step++;
+        if (step % 4 === 0) {
+          const nextVal = spikeActive ? (75 + Math.random() * 22) : (25 + Math.random() * 25);
+          graphPoints.push(nextVal);
+          graphPoints.shift();
+        }
+
+        const w = trafficCanvas.width;
+        const h = trafficCanvas.height;
+
+        ctx.clearRect(0, 0, w, h);
+
+        // Draw cyber grid
+        ctx.strokeStyle = 'rgba(0, 240, 255, 0.08)';
+        ctx.lineWidth = 1;
+        for (let x = 0; x < w; x += 40) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, h);
+          ctx.stroke();
+        }
+        for (let y = 0; y < h; y += 30) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(w, y);
+          ctx.stroke();
+        }
+
+        // Draw bandwidth wave
+        ctx.beginPath();
+        const slice = w / (graphPoints.length - 1);
+        graphPoints.forEach((val, i) => {
+          const x = i * slice;
+          const y = h - (val / 100) * (h * 0.85) - 8;
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+
+        // Gradient under wave
+        const grad = ctx.createLinearGradient(0, 0, 0, h);
+        if (spikeActive) {
+          grad.addColorStop(0, 'rgba(255, 0, 85, 0.45)');
+          grad.addColorStop(1, 'rgba(255, 0, 85, 0.0)');
+          ctx.strokeStyle = '#ff0055';
+        } else {
+          grad.addColorStop(0, 'rgba(0, 240, 255, 0.35)');
+          grad.addColorStop(1, 'rgba(0, 240, 255, 0.0)');
+          ctx.strokeStyle = '#00f0ff';
+        }
+        ctx.lineWidth = 2.5 * window.devicePixelRatio;
+        ctx.stroke();
+
+        ctx.lineTo(w, h);
+        ctx.lineTo(0, h);
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        requestAnimationFrame(draw);
+      }
+      requestAnimationFrame(draw);
+    }
+
+    /* -------------------------------------------------------------------------
+       REAL-TIME eBPF KERNEL LOG CONSOLE
+       ------------------------------------------------------------------------- */
+    function logKernelEvent(action, ip, detail) {
+      const time = new Date().toISOString().slice(11, 19);
+      const line = document.createElement('div');
+      line.className = 'flex items-baseline gap-2 leading-tight transition-all';
+      
+      const isAlert = action.includes('ANOMALY') || action.includes('INCURSION');
+      const isDrop = action.includes('DROP') || action.includes('COMMIT');
+
+      const colorTag = isAlert 
+        ? 'text-red-400 font-bold' 
+        : isDrop 
+        ? 'text-emerald-400 font-bold' 
+        : 'text-cyan-400';
+
+      line.innerHTML = `
+        <span class="text-slate-500">[${time}]</span>
+        <span class="${colorTag}">[${action}]</span>
+        <span class="text-slate-200">${ip}</span>
+        <span class="text-slate-400 text-[9px]">&bull; ${escapeHtml(detail)}</span>
+      `;
+
+      kernelLogsContainer.appendChild(line);
+      kernelLogsContainer.scrollTop = kernelLogsContainer.scrollHeight;
+
+      // Keep maximum 40 log lines
+      if (kernelLogsContainer.children.length > 40) {
+        kernelLogsContainer.removeChild(kernelLogsContainer.firstChild);
+      }
+    }
+
+    function seedKernelLogs() {
+      logKernelEvent('eBPF_INIT', '127.0.0.1', 'xdp_prog loaded onto interface eth0 (JIT compiled)');
+      logKernelEvent('INGRESS_SCAN', '185.220.101.5', 'SYN volumetric threshold exceeded (145k pps)');
+      logKernelEvent('eBPF_DROP', '185.220.101.5', 'XDP_DROP verdict committed (0ns latency)');
+      logKernelEvent('SURICATA_SIG', '45.154.255.89', 'Rule 2010927: SQL UNION payload flagged');
+      logKernelEvent('NEURAL_AUDIT', '103.251.167.20', 'Shellcode buffer offset isolated');
+    }
+
+    /* =========================================================================
+       SUPABASE REALTIME LISTENER & INITIAL FETCH HELPER FUNCTIONS
+       ========================================================================= */
+    function initSupabase() {
+      if (!window.supabase) {
+        console.warn('[Sentinel AI] Supabase SDK not loaded yet.');
+        return;
+      }
+      try {
+        supabaseClient = window.supabase.createClient(SUPABASE_CONFIG.URL, SUPABASE_CONFIG.ANON_KEY);
+        syncStatusText.textContent = 'CONNECTED (SUPABASE REALTIME)';
+        syncStatusText.className = 'text-cyan-500 dark:text-cyber-cyan font-bold';
+        setupSupabaseRealtime();
+        fetchInitialThreatsFromSupabase();
+      } catch (err) {
+        console.error('[Sentinel AI] Supabase initialization failed:', err);
+      }
+    }
+
+    async function fetchInitialThreatsFromSupabase() {
+      if (!supabaseClient) return;
+      try {
+        const { data, error } = await supabaseClient
+          .from('network_threats')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(50);
+
+        if (error) {
+          console.error('[Supabase Select Error]:', error);
+          return;
+        }
+
+        if (data && data.length > 0) {
+          threats = data.map(dbRow => {
+            const countryMatch = COUNTRY_POOL.find(c => c.code === dbRow.origin_country);
+            const attackMatch = ATTACK_POOL.find(a => a.type === dbRow.attack_type);
+            return {
+              id: dbRow.id,
+              created_at: dbRow.created_at,
+              source_ip: dbRow.source_ip,
+              asn: ASN_POOL[Math.floor(Math.random() * ASN_POOL.length)],
+              target_port: attackMatch ? attackMatch.port : 'TCP:443 (HTTPS Ingress)',
+              origin_country: dbRow.origin_country,
+              country_name: countryMatch ? countryMatch.name : dbRow.origin_country,
+              flag: countryMatch ? countryMatch.flag : '🌐',
+              attack_type: dbRow.attack_type,
+              severity: dbRow.severity || 'High',
+              status: dbRow.status || 'Active'
+            };
+          });
+          renderTable();
+          updateStats();
+        }
+      } catch (err) {
+        console.error('[Supabase Error]:', err);
+      }
+    }
+
+    function setupSupabaseRealtime() {
+      if (!supabaseClient) return;
+      try {
+        supabaseClient
+          .channel('public:network_threats')
+          .on(
+            'postgres_changes',
+            { event: 'INSERT', schema: 'public', table: 'network_threats' },
+            (payload) => {
+              const newRow = payload.new;
+              if (threats.some(t => t.id === newRow.id || (t.source_ip === newRow.source_ip && Math.abs(new Date(t.created_at) - new Date(newRow.created_at)) < 3000))) {
+                return;
+              }
+              const countryMatch = COUNTRY_POOL.find(c => c.code === newRow.origin_country);
+              const attackMatch = ATTACK_POOL.find(a => a.type === newRow.attack_type);
+              const newThreat = {
+                id: newRow.id,
+                created_at: newRow.created_at,
+                source_ip: newRow.source_ip,
+                asn: ASN_POOL[Math.floor(Math.random() * ASN_POOL.length)],
+                target_port: attackMatch ? attackMatch.port : 'TCP:443 (HTTPS Ingress)',
+                origin_country: newRow.origin_country,
+                country_name: countryMatch ? countryMatch.name : newRow.origin_country,
+                flag: countryMatch ? countryMatch.flag : '🌐',
+                attack_type: newRow.attack_type,
+                severity: newRow.severity || 'High',
+                status: newRow.status || 'Active'
+              };
+              threats.unshift(newThreat);
+              prependThreatRow(newThreat);
+              updateStats();
+              playSound('alarm');
+              triggerGraphSpike();
+              logKernelEvent('REALTIME_INCURSION', newThreat.source_ip, `Received via WebSocket channel`);
+
+              if (autoDefenseEnabled && newThreat.status === 'Active') {
+                pendingQuarantines.add(newThreat.id);
+                setTimeout(() => {
+                  pendingQuarantines.delete(newThreat.id);
+                  handleBlockIp(newThreat.id, true);
+                }, 2000);
+              }
+            }
+          )
+          .on(
+            'postgres_changes',
+            { event: 'UPDATE', schema: 'public', table: 'network_threats' },
+            (payload) => {
+              const updated = payload.new;
+              const existing = threats.find(t => t.id === updated.id || t.source_ip === updated.source_ip);
+              if (existing) {
+                existing.status = updated.status;
+                renderTable();
+                updateStats();
+              }
+            }
+          )
+          .subscribe((status) => {
+            console.log('[Supabase Realtime Status]:', status);
+          });
+      } catch (err) {
+        console.error('[Supabase Realtime Setup Error]:', err);
+      }
+    }
+
+    // Close on Escape Key
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeAiModal();
+      }
+    });
+  </script>
+</body>
+</html>
