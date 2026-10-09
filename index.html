@@ -1,1780 +1,509 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en" data-theme="dark">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sentinel AI — Cloud IDS &amp; IPS Security Command Center</title>
-  
-  <!-- Google Fonts: Inter & JetBrains Mono -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            cyber: {
-              bg: '#05070c',
-              surface: '#0b0f19',
-              card: '#111726',
-              border: '#1e293b',
-              neon: '#00ff9d',
-              cyan: '#00f0ff',
-              red: '#ff0055',
-              yellow: '#ffb703',
-              purple: '#a855f7'
-            }
-          },
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace'],
-          },
-          boxShadow: {
-            'neon-green': '0 0 20px -3px rgba(0, 255, 157, 0.45)',
-            'neon-red': '0 0 20px -3px rgba(255, 0, 85, 0.45)',
-            'neon-cyan': '0 0 20px -3px rgba(0, 240, 255, 0.45)',
-          }
-        }
-      }
-    }
-  </script>
-
-  <!-- Lucide Icons CDN -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-
-  <!-- Supabase Client SDK CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <style>
-    /* Custom Keyframe Animations */
-    @keyframes slideDownThreat {
-      0% {
-        opacity: 0;
-        transform: translateY(-24px) scale(0.97);
-        background-color: rgba(255, 0, 85, 0.35);
-      }
-      50% {
-        background-color: rgba(255, 0, 85, 0.18);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    .animate-threat-enter {
-      animation: slideDownThreat 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-
-    @keyframes radarPulse {
-      0% { transform: scale(0.95); opacity: 0.8; }
-      50% { transform: scale(1.1); opacity: 0.3; }
-      100% { transform: scale(0.95); opacity: 0.8; }
-    }
-
-    .animate-radar {
-      animation: radarPulse 3s infinite ease-in-out;
-    }
-
-    /* Cyber Grid Background in Dark Mode */
-    .dark .cyber-grid {
-      background-image: 
-        radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.12) 0%, transparent 65%),
-        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-      background-size: 100% 100%, 40px 40px, 40px 40px;
-    }
-
-    /* Clean Subtle Grid Background in Light Mode */
-    .light-grid {
-      background-image: 
-        radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.07) 0%, transparent 60%),
-        linear-gradient(to right, rgba(0, 0, 0, 0.035) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(0, 0, 0, 0.035) 1px, transparent 1px);
-      background-size: 100% 100%, 36px 36px, 36px 36px;
-    }
-
-    /* Scanline effect accent in dark mode */
-    .dark .cyber-scanline {
-      position: relative;
-    }
-    .dark .cyber-scanline::after {
-      content: " ";
-      display: block;
-      position: absolute;
-      top: 0; left: 0; bottom: 0; right: 0;
-      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.24) 50%);
-      background-size: 100% 4px;
-      z-index: 40;
-      pointer-events: none;
-      opacity: 0.16;
-    }
-
-    /* Terminal scroll style */
-    .terminal-scroll::-webkit-scrollbar {
-      width: 5px;
-    }
-    .terminal-scroll::-webkit-scrollbar-thumb {
-      background: rgba(0, 240, 255, 0.25);
-      border-radius: 4px;
-    }
-
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-      width: 7px;
-      height: 7px;
-    }
-    ::-webkit-scrollbar-track {
-      background: rgba(15, 23, 42, 0.4);
-    }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(100, 116, 139, 0.45);
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(148, 163, 184, 0.7);
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sentinel AI — Cloud IDS &amp; IPS Command Center</title>
+<style>
+:root{--bg:#f3f6fc;--bg2:#e4ecfb;--panel:#fff;--text:#0f172a;--muted:#5b6b82;--accent:#2563eb;--accent2:#0891b2;--danger:#dc2626;--ok:#16a34a;--border:#dbe3f0;--shadow:0 8px 28px rgba(15,23,42,.09);--glow:0 0 0 rgba(0,0,0,0);--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;--sans:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+[data-theme=dark]{--bg:#05070c;--bg2:#08213a;--panel:#0b111c;--text:#e6edf6;--muted:#8a9bb2;--accent:#00ff9d;--accent2:#00f0ff;--danger:#ff0055;--ok:#00ff9d;--border:#16324a;--shadow:0 0 0 1px #16324a;--glow:0 0 22px rgba(0,255,157,.3)}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;overflow:hidden;background:radial-gradient(1200px 700px at 80% -10%,var(--bg2),var(--bg));color:var(--text);font-family:var(--sans);transition:background .4s,color .4s}
+[data-theme=dark] body::after{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.16) 0 1px,transparent 1px 3px);z-index:50}
+.slide{position:absolute;inset:0;padding:70px 6vw 84px;display:flex;flex-direction:column;justify-content:center;opacity:0;pointer-events:none;transform:translateX(70px) scale(.98);transition:opacity .55s ease,transform .55s ease;overflow:auto}
+.slide.active{opacity:1;pointer-events:auto;transform:none}
+.slide.past{transform:translateX(-70px) scale(.98)}
+.split{display:grid;grid-template-columns:1.1fr 1fr;gap:34px;align-items:center}
+@media(max-width:900px){.split{grid-template-columns:1fr}.slide{justify-content:flex-start}}
+h1{font-size:clamp(2.6rem,6.4vw,5rem);line-height:1.02;letter-spacing:-.03em}
+h2{font-size:clamp(1.8rem,3.8vw,2.9rem);line-height:1.1;margin-bottom:8px;letter-spacing:-.02em}
+.kicker{font:700 .78rem var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+.sub{color:var(--muted);font-size:clamp(1rem,1.6vw,1.25rem);max-width:58ch;margin:10px 0 22px;line-height:1.55}
+.grad{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:20px;box-shadow:var(--shadow);transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s,border-color .3s}
+.card:hover{transform:scale(1.07);border-color:var(--accent);box-shadow:var(--glow),0 16px 40px rgba(0,0,0,.2);position:relative;z-index:5}
+.card .ic{font-size:1.9rem;display:inline-block;margin-bottom:8px;transition:transform .3s}
+.card:hover .ic{transform:scale(1.3) rotate(-6deg)}
+.card h3{font-size:1.08rem;margin-bottom:6px}
+.card p{color:var(--muted);font-size:.93rem;line-height:1.5}
+.big{font:800 2.5rem var(--mono);color:var(--accent);line-height:1}
+.vis{border-radius:20px;border:1px solid var(--border);background:var(--panel);box-shadow:var(--shadow);padding:10px;transition:transform .35s,box-shadow .35s}
+.vis:hover{transform:scale(1.05);box-shadow:var(--glow),0 18px 44px rgba(0,0,0,.22)}
+.vis svg,.vis img{width:100%;height:auto;display:block;border-radius:12px}
+.shot img{display:none}
+[data-theme=dark] .shot img.d{display:block}[data-theme=light] .shot img.l{display:block}
+.shot.has svg{display:none}
+.cap{font:600 .72rem var(--mono);color:var(--muted);text-align:center;margin-top:8px;letter-spacing:.06em}
+.flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;justify-content:center}
+.flow .card{padding:16px 18px;text-align:center;min-width:140px;flex:1}
+.arrow{align-self:center;color:var(--accent);font-size:1.7rem;animation:nudge 1.4s infinite}
+@keyframes nudge{50%{transform:translateX(6px)}}
+.pill{font:800 .85rem var(--mono);padding:5px 14px;border-radius:99px;transition:all .4s}
+.act{background:rgba(220,38,38,.14);color:var(--danger)}.blk{background:rgba(22,163,74,.16);color:var(--ok)}
+.bar{height:9px;border-radius:9px;background:var(--border);overflow:hidden;margin:12px 0 6px}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.slide.active .bar i{width:100%;transition:width 2s linear .3s}
+table{width:100%;border-collapse:separate;border-spacing:0 8px;font-size:.9rem}
+th{font:700 .72rem var(--mono);letter-spacing:.1em;color:var(--muted);text-transform:uppercase;text-align:left;padding:0 12px}
+td{padding:11px 12px;background:var(--panel)}
+tbody tr{transition:transform .25s,filter .25s}tbody tr:hover{transform:scale(1.04);filter:drop-shadow(0 0 10px rgba(0,255,157,.25))}
+td:first-child{border-radius:12px 0 0 12px;font:700 .85rem var(--mono);color:var(--accent)}td:last-child{border-radius:0 12px 12px 0}
+.tag{display:inline-block;padding:4px 12px;border-radius:99px;font:700 .72rem var(--mono);border:1px solid var(--border);margin:3px 5px 0 0;background:var(--panel);transition:transform .25s}.tag:hover{transform:scale(1.18)}
+.note{margin-top:16px;font-size:.88rem;color:var(--muted);border-left:3px solid var(--accent);padding-left:12px;max-width:68ch;line-height:1.5}
+.term{background:#02050a;color:#9dffcf;font:.82rem/1.75 var(--mono);border:1px solid var(--border);border-radius:14px;padding:16px}
+.term .r{color:#ff5c8a}.term .c{color:#5cf0ff}
+.hud{position:fixed;left:0;right:0;z-index:60;display:flex;align-items:center;justify-content:space-between;padding:14px 22px;font:700 .8rem var(--mono);color:var(--muted)}
+.top{top:0}.bot{bottom:0}
+.btn{background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:12px;padding:8px 14px;font:700 .8rem var(--mono);cursor:pointer;transition:transform .2s,border-color .2s,box-shadow .2s}
+.btn:hover{transform:scale(1.12);border-color:var(--accent);box-shadow:var(--glow)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#prog{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));z-index:70;transition:width .4s}
+.dots{display:flex;gap:6px}.dots b{width:8px;height:8px;border-radius:50%;background:var(--border);cursor:pointer;transition:transform .2s,background .2s}.dots b:hover{transform:scale(1.7)}.dots b.on{background:var(--accent);transform:scale(1.35)}
+@media(max-width:700px){.dots{display:none}}
+/* svg animation */
+.sweep{transform-origin:200px 200px;animation:spin 4s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+.ping{animation:ping 2s ease-out infinite;transform-box:fill-box;transform-origin:center}@keyframes ping{from{opacity:.9;transform:scale(.4)}to{opacity:0;transform:scale(2.4)}}
+.dash{stroke-dasharray:6 8;animation:flow 1.2s linear infinite}@keyframes flow{to{stroke-dashoffset:-28}}
+.float{animation:float 3.5s ease-in-out infinite}@keyframes float{50%{transform:translateY(-8px)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.ips{border-color:var(--accent2)!important}.ids{border-color:var(--accent)!important}.badge{display:inline-block;font:800 .68rem var(--mono);letter-spacing:.12em;padding:3px 10px;border-radius:99px;margin-bottom:8px}.b-ids{background:rgba(0,255,157,.14);color:var(--accent)}.b-ips{background:rgba(0,240,255,.14);color:var(--accent2)}[data-theme=light] .b-ids{background:rgba(37,99,235,.12)}[data-theme=light] .b-ips{background:rgba(8,145,178,.12)}.pcap{font:.78rem/1.9 var(--mono)}.pcap b{padding:2px 7px;border-radius:6px;background:rgba(255,0,85,.15);color:var(--danger)}.simple{margin-top:18px;padding:12px 16px;border-radius:14px;background:var(--panel);border:1px dashed var(--accent);font-size:1rem;line-height:1.5;max-width:70ch}.simple b{color:var(--accent)}.simple::before{content:"💡 "}.op{align-self:center;font:800 2rem var(--mono);color:var(--accent)}.chip{font:700 .72rem var(--mono);color:var(--accent);border:1px solid var(--border);border-radius:99px;padding:4px 12px;background:var(--panel)}.pulse{display:inline-block;width:.45em;height:.45em;border-radius:50%;background:var(--danger);margin-right:.3em;animation:pulse 1.2s infinite}@keyframes pulse{50%{opacity:.3;transform:scale(1.4)}}.live h1{font-size:clamp(2.6rem,7vw,5.4rem)}</style>
 </head>
-<body class="transition-colors duration-300 font-sans min-h-screen bg-slate-50 text-slate-800 dark:bg-cyber-bg dark:text-slate-100 cyber-grid">
+<body>
+<div id="prog"></div>
+<div class="hud top"><span>🛡️ SENTINEL AI</span><span id="who" class="chip"></span><span><button class="btn" id="mode" aria-label="Switch full or short version">📚 Full version</button> <button class="btn" id="theme" aria-label="Toggle theme">☀ Light</button></span></div>
 
-  <!-- Cyber Scanline Overlay wrapper -->
-  <div class="cyber-scanline min-h-screen flex flex-col">
-
-    <!-- ========================================================================= -->
-    <!-- 1. TOP NAVBAR                                                             -->
-    <!-- ========================================================================= -->
-    <header class="sticky top-0 z-30 backdrop-blur-md border-b transition-colors duration-300 bg-white/90 border-slate-200 shadow-sm dark:bg-cyber-surface/85 dark:border-cyber-border dark:shadow-none">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-3">
-        
-        <!-- Brand / Title -->
-        <div class="flex items-center gap-3.5">
-          <div class="relative flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-md dark:from-cyan-500 dark:to-cyber-neon dark:text-black dark:shadow-neon-cyan">
-            <i data-lucide="shield-alert" class="w-6 h-6 stroke-[2.2]"></i>
-            <!-- Pulse Radar Dot -->
-            <span class="absolute -top-1 -right-1 flex h-3.5 w-3.5">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border-2 border-white dark:border-cyber-surface"></span>
-            </span>
-          </div>
-
-          <div>
-            <div class="flex items-center gap-2">
-              <h1 class="text-xl font-bold tracking-tight text-slate-900 dark:text-white font-mono">
-                SENTINEL<span class="text-blue-600 dark:text-cyber-cyan">.AI</span>
-              </h1>
-              <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold tracking-wider uppercase bg-blue-100 text-blue-800 dark:bg-cyber-cyan/15 dark:text-cyber-cyan dark:border dark:border-cyber-cyan/30">
-                IDS / IPS v2.4
-              </span>
-            </div>
-            <p class="text-xs text-slate-500 dark:text-slate-400 font-mono flex items-center gap-1.5">
-              <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
-              CLOUD PERIMETER DEFENSE ACTIVE &bull; AWS us-east-1 VPC
-            </p>
-          </div>
-        </div>
-
-        <!-- Center / Right: Action Bar -->
-        <div class="flex items-center gap-2 sm:gap-3">
-          
-          <!-- Autonomous IPS Switch -->
-          <div class="flex items-center gap-2 px-2.5 py-1.5 rounded-xl border transition-all duration-200 bg-slate-100/90 border-slate-200 dark:bg-cyber-card dark:border-cyber-border">
-            <div class="flex flex-col text-right">
-              <span class="text-[9px] font-bold tracking-wider uppercase text-slate-500 dark:text-slate-400 font-mono">AUTO-IPS</span>
-              <span id="autoDefenseLabel" class="text-xs font-semibold text-emerald-600 dark:text-cyber-neon font-mono">ARMED</span>
-            </div>
-            <label class="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" id="autoDefenseToggle" checked class="sr-only peer">
-              <div class="w-10 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-slate-600 peer-checked:bg-emerald-500 dark:peer-checked:bg-cyber-neon"></div>
-            </label>
-          </div>
-
-          <!-- Live Ambient Traffic Stream Toggle -->
-          <button id="liveStreamToggleBtn" title="Toggle automatic continuous threat injection stream" class="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-mono font-medium border transition-all duration-200 bg-slate-100 dark:bg-cyber-card border-slate-200 dark:border-cyber-border text-slate-600 dark:text-slate-300 hover:text-cyan-400">
-            <span class="w-2 h-2 rounded-full bg-slate-400" id="liveStreamDot"></span>
-            <span id="liveStreamLabel">Live Stream: OFF</span>
-          </button>
-
-          <!-- Simulate Attack Button -->
-          <button id="simulateBtn" class="group relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 bg-red-600 hover:bg-red-700 text-white shadow-sm hover:shadow-md active:scale-95 dark:bg-cyber-red/20 dark:text-cyber-red dark:border dark:border-cyber-red/50 dark:hover:bg-cyber-red dark:hover:text-black dark:shadow-neon-red">
-            <i data-lucide="flame" class="w-4 h-4 transition-transform group-hover:scale-110"></i>
-            <span class="font-mono">Simulate Attack</span>
-          </button>
-
-          <!-- Reset / Reseed Scenario Button (ALWAYS BRINGS BACK ACTIVE INTRUSIONS) -->
-          <button id="reseedBtn" title="Reset scenario & generate fresh active incursions" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium border transition-all duration-200 bg-white hover:bg-slate-50 text-slate-700 border-slate-300 shadow-sm dark:bg-cyber-card dark:border-cyber-border dark:text-cyan-400 dark:hover:bg-cyan-950/40">
-            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
-            <span class="hidden sm:inline font-mono">Reset Scenario</span>
-          </button>
-
-          <!-- Sound FX Toggle -->
-          <button id="soundToggleBtn" title="Toggle Sci-Fi HUD Audio Effects" class="p-2 rounded-xl border transition-all duration-200 bg-white hover:bg-slate-100 text-slate-600 border-slate-300 shadow-sm dark:bg-cyber-card dark:border-cyber-border dark:text-slate-300 dark:hover:text-cyber-neon">
-            <i id="soundIcon" data-lucide="volume-2" class="w-4 h-4"></i>
-          </button>
-
-          <!-- Export CSV Button -->
-          <button id="exportBtn" title="Export RFC-4180 audit logs" class="hidden sm:inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-medium border transition-all duration-200 bg-white hover:bg-slate-50 text-slate-700 border-slate-300 shadow-sm dark:bg-cyber-card dark:border-cyber-border dark:text-slate-300">
-            <i data-lucide="download" class="w-3.5 h-3.5"></i>
-            <span class="font-mono">CSV</span>
-          </button>
-
-          <!-- Theme Toggle -->
-          <button id="themeToggleBtn" aria-label="Toggle Theme" class="p-2 rounded-xl border transition-all duration-200 bg-white hover:bg-slate-100 text-slate-600 border-slate-300 shadow-sm dark:bg-cyber-card dark:border-cyber-border dark:text-cyber-cyan dark:hover:bg-slate-800">
-            <i id="sunIcon" data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
-            <i id="moonIcon" data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
-          </button>
-
-        </div>
-      </div>
-    </header>
-
-    <!-- ========================================================================= -->
-    <!-- 2. MAIN CONTENT                                                           -->
-    <!-- ========================================================================= -->
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-7 space-y-6">
-      
-      <!-- Live Alert Banner (Dynamic) -->
-      <div id="liveAlertBanner" class="transition-all duration-300 rounded-xl p-3.5 border flex items-center justify-between text-xs sm:text-sm font-mono bg-red-50 border-red-200 text-red-800 dark:bg-cyber-red/10 dark:border-cyber-red/40 dark:text-cyber-red shadow-[0_0_15px_rgba(255,0,85,0.15)]">
-        <div class="flex items-center gap-2.5">
-          <span class="flex h-2.5 w-2.5 relative">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
-          </span>
-          <span id="liveAlertMessage">ALERT: 2 ACTIVE BREACH ATTEMPTS DETECTED ON EDGE INTERFACE</span>
-        </div>
-        <span class="text-xs opacity-80 hidden sm:inline">IPS Auto-Mitigation Engine Active &bull; Zero Lateral Movement</span>
-      </div>
-
-      <!-- ======================================================================= -->
-      <!-- 3. STATS DASHBOARD                                                      -->
-      <!-- ======================================================================= -->
-      <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-        
-        <!-- Total Monitored Traffic -->
-        <div class="relative overflow-hidden p-5 rounded-2xl border transition-all duration-200 bg-white border-slate-200 shadow-sm hover:shadow-md dark:bg-cyber-surface/90 dark:border-cyber-border dark:hover:border-slate-700">
-          <div class="flex items-center justify-between mb-3">
-            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 font-mono">Total Packets Inspected</span>
-            <div class="p-2 rounded-lg bg-blue-50 text-blue-600 dark:bg-cyber-cyan/10 dark:text-cyber-cyan">
-              <i data-lucide="activity" class="w-4 h-4"></i>
-            </div>
-          </div>
-          <div class="flex items-baseline justify-between">
-            <span id="statTotalTraffic" class="text-2xl sm:text-3xl font-extrabold tracking-tight font-mono text-slate-900 dark:text-white">1,504,965</span>
-            <span class="text-xs font-semibold text-emerald-600 dark:text-cyber-neon flex items-center gap-1 font-mono">
-              <i data-lucide="trending-up" class="w-3.5 h-3.5"></i> +14.2%
-            </span>
-          </div>
-          <div class="mt-2 text-xs text-slate-500 dark:text-slate-400 font-mono">Deep packet inspection stream (eBPF)</div>
-        </div>
-
-        <!-- Active Threats -->
-        <div class="relative overflow-hidden p-5 rounded-2xl border transition-all duration-200 bg-white border-slate-200 shadow-sm hover:shadow-md dark:bg-cyber-surface/90 dark:border-cyber-border dark:hover:border-red-900/60">
-          <div class="flex items-center justify-between mb-3">
-            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 font-mono">Active Incursions</span>
-            <div class="p-2 rounded-lg bg-red-50 text-red-600 dark:bg-cyber-red/10 dark:text-cyber-red">
-              <i data-lucide="zap" class="w-4 h-4"></i>
-            </div>
-          </div>
-          <div class="flex items-baseline justify-between">
-            <span id="statActiveThreats" class="text-2xl sm:text-3xl font-extrabold tracking-tight font-mono text-red-600 dark:text-cyber-red">2</span>
-            <span id="activeThreatBadge" class="text-xs font-mono px-2 py-0.5 rounded bg-red-100 text-red-700 dark:bg-cyber-red/20 dark:text-cyber-red border border-red-200 dark:border-cyber-red/30">
-              HIGH RISK
-            </span>
-          </div>
-          <div class="mt-2 text-xs text-slate-500 dark:text-slate-400 font-mono">Live edge quarantine pending</div>
-        </div>
-
-        <!-- Threats Blocked -->
-        <div class="relative overflow-hidden p-5 rounded-2xl border transition-all duration-200 bg-white border-slate-200 shadow-sm hover:shadow-md dark:bg-cyber-surface/90 dark:border-cyber-border dark:hover:border-emerald-900/60">
-          <div class="flex items-center justify-between mb-3">
-            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 font-mono">Threats Neutralized</span>
-            <div class="p-2 rounded-lg bg-emerald-50 text-emerald-600 dark:bg-cyber-neon/10 dark:text-cyber-neon">
-              <i data-lucide="shield-check" class="w-4 h-4"></i>
-            </div>
-          </div>
-          <div class="flex items-baseline justify-between">
-            <span id="statBlockedThreats" class="text-2xl sm:text-3xl font-extrabold tracking-tight font-mono text-emerald-600 dark:text-cyber-neon">10</span>
-            <span class="text-xs font-semibold text-emerald-600 dark:text-cyber-neon flex items-center gap-0.5 font-mono">
-              <i data-lucide="check" class="w-3.5 h-3.5"></i> Mitigated
-            </span>
-          </div>
-          <div class="mt-2 text-xs text-slate-500 dark:text-slate-400 font-mono">Synthesized iptables drop rules</div>
-        </div>
-
-        <!-- Auto Defense Efficiency -->
-        <div class="relative overflow-hidden p-5 rounded-2xl border transition-all duration-200 bg-white border-slate-200 shadow-sm hover:shadow-md dark:bg-cyber-surface/90 dark:border-cyber-border">
-          <div class="flex items-center justify-between mb-3">
-            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 font-mono">Autonomous IPS Efficacy</span>
-            <div class="p-2 rounded-lg bg-indigo-50 text-indigo-600 dark:bg-cyber-purple/10 dark:text-cyber-purple">
-              <i data-lucide="cpu" class="w-4 h-4"></i>
-            </div>
-          </div>
-          <div class="flex items-baseline justify-between">
-            <span id="statDefenseRate" class="text-2xl sm:text-3xl font-extrabold tracking-tight font-mono text-indigo-600 dark:text-cyan-400">99.8%</span>
-            <span class="text-xs font-mono text-slate-500 dark:text-slate-400">Response &lt; 2.0s</span>
-          </div>
-          <div class="mt-2 text-xs text-slate-500 dark:text-slate-400 font-mono">Mean Time to Quarantine (MTTQ)</div>
-        </div>
-
-      </section>
-
-      <!-- ======================================================================= -->
-      <!-- 4. REAL-TIME TELEMETRY GRAPH & eBPF KERNEL STREAM                        -->
-      <!-- ======================================================================= -->
-      <section class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        
-        <!-- Live Real-Time Bandwidth & Anomaly Spike Visualizer (Canvas) -->
-        <div class="lg:col-span-2 rounded-2xl border p-4 sm:p-5 transition-all bg-white border-slate-200 shadow-sm dark:bg-cyber-surface/90 dark:border-cyber-border">
-          <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
-              <h3 class="font-bold text-xs sm:text-sm font-mono tracking-tight text-slate-900 dark:text-white">
-                LIVE NETWORK INGRESS TELEMETRY &amp; PACKET VOLUMETRICS
-              </h3>
-            </div>
-            <div class="flex items-center gap-3 text-[11px] font-mono text-slate-500 dark:text-slate-400">
-              <span class="flex items-center gap-1">
-                <span class="w-2 h-2 rounded-full bg-cyan-400 inline-block"></span>
-                Bandwidth: <strong id="liveMbpsValue" class="text-cyan-500 dark:text-cyber-cyan">842 Mbps</strong>
-              </span>
-              <span class="hidden sm:inline text-slate-400">|</span>
-              <span class="hidden sm:flex items-center gap-1">
-                <span class="w-2 h-2 rounded-full bg-red-500 inline-block"></span>
-                Anomalies: <strong id="liveAnomalySpikes" class="text-red-500 dark:text-cyber-red">14 pkts/s</strong>
-              </span>
-            </div>
-          </div>
-
-          <!-- Canvas Streaming Chart -->
-          <div class="relative w-full h-36 rounded-xl overflow-hidden bg-slate-950 border border-slate-800">
-            <canvas id="trafficCanvas" class="w-full h-full block"></canvas>
-            <div class="absolute top-2 left-3 text-[10px] font-mono text-slate-500 flex items-center gap-2">
-              <span>INTERFACE: eth0 / vpc_gw</span>
-              <span>SAMPLING: 60 FPS</span>
-            </div>
-            <div id="chartAlertBadge" class="absolute top-2 right-3 px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-red-950/80 text-red-400 border border-red-700 hidden">
-              VOLUMETRIC SPIKE DETECTED
-            </div>
-          </div>
-        </div>
-
-        <!-- Live eBPF / Suricata Kernel Telemetry Feed -->
-        <div class="rounded-2xl border p-4 sm:p-5 transition-all bg-white border-slate-200 shadow-sm dark:bg-cyber-surface/90 dark:border-cyber-border flex flex-col">
-          <div class="flex items-center justify-between mb-2.5">
-            <div class="flex items-center gap-2">
-              <i data-lucide="terminal" class="w-4 h-4 text-emerald-500 dark:text-cyber-neon"></i>
-              <h3 class="font-bold text-xs sm:text-sm font-mono tracking-tight text-slate-900 dark:text-white">
-                eBPF KERNEL AUDIT STREAM
-              </h3>
-            </div>
-            <span class="text-[10px] font-mono text-emerald-500 dark:text-cyber-neon flex items-center gap-1">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> LOGGING
-            </span>
-          </div>
-
-          <div id="kernelLogsContainer" class="terminal-scroll flex-1 h-36 overflow-y-auto p-2.5 rounded-xl bg-slate-950 border border-slate-800 font-mono text-[10px] text-slate-300 space-y-1.5 select-all">
-            <!-- Dynamic kernel log lines -->
-          </div>
-        </div>
-
-      </section>
-
-      <!-- ======================================================================= -->
-      <!-- 5. THREAT INTELLIGENCE FEED (MAIN DATA TABLE)                           -->
-      <!-- ======================================================================= -->
-      <section class="rounded-2xl border overflow-hidden transition-all duration-200 bg-white border-slate-200 shadow-sm dark:bg-cyber-surface/90 dark:border-cyber-border">
-        
-        <!-- Table Control Toolbar -->
-        <div class="p-4 sm:p-5 border-b border-slate-200 dark:border-cyber-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div class="flex items-center gap-3">
-            <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
-            <div>
-              <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white font-mono tracking-tight flex items-center gap-2">
-                LIVE INTRUSION TELEMETRY
-                <span id="recordCountBadge" class="text-xs font-normal px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-mono border dark:border-slate-700">
-                  12 Events
-                </span>
-              </h2>
-              <p class="text-xs text-slate-500 dark:text-slate-400 font-mono">Real-time edge packet anomaly stream &bull; Synced with Supabase Realtime</p>
-            </div>
-          </div>
-
-          <!-- Quick Filter / Search -->
-          <div class="flex items-center gap-2.5">
-            <div class="relative">
-              <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-              <input 
-                type="text" 
-                id="searchFilter" 
-                placeholder="Filter IP, Attack, Country, ASN..." 
-                class="w-56 sm:w-64 pl-9 pr-3 py-1.5 text-xs rounded-xl border border-slate-300 dark:border-cyber-border bg-slate-50 dark:bg-cyber-card text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-cyber-cyan font-mono"
-              />
-            </div>
-            
-            <button id="clearFiltersBtn" title="Reset Filters" class="p-2 rounded-xl border border-slate-300 dark:border-cyber-border hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors">
-              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
-            </button>
-          </div>
-        </div>
-
-        <!-- Table Container -->
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse text-xs sm:text-sm">
-            <thead>
-              <tr class="border-b border-slate-200 dark:border-cyber-border bg-slate-50/70 dark:bg-cyber-card/60 text-slate-500 dark:text-slate-400 font-mono uppercase text-[11px] tracking-wider">
-                <th class="py-3.5 px-4 font-semibold">Timestamp</th>
-                <th class="py-3.5 px-4 font-semibold">Source IP &amp; Network ASN</th>
-                <th class="py-3.5 px-4 font-semibold">Origin</th>
-                <th class="py-3.5 px-4 font-semibold">Attack Vector &amp; Target Port</th>
-                <th class="py-3.5 px-4 font-semibold">Status</th>
-                <th class="py-3.5 px-4 font-semibold text-right">IPS Actions</th>
-              </tr>
-            </thead>
-            <tbody id="threatTableBody" class="divide-y divide-slate-200 dark:divide-cyber-border/70 font-mono">
-              <!-- Seed Rows Injected via JS -->
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Table Footer / Status -->
-        <div class="p-3.5 border-t border-slate-200 dark:border-cyber-border/80 bg-slate-50/50 dark:bg-cyber-card/40 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400 font-mono">
-          <div class="flex items-center gap-2">
-            <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>IDS Telemetry Stream: <span id="syncStatusText" class="text-emerald-600 dark:text-cyber-neon font-bold">CONNECTED (SUPABASE REALTIME)</span></span>
-          </div>
-          <div class="flex items-center gap-3">
-            <span>Target VPC: <strong class="text-cyan-500 dark:text-cyber-cyan">vpc-prod-us-east-1</strong></span>
-            <span>Engine: Sentinel AI Neural Detection v2.4</span>
-          </div>
-        </div>
-
-      </section>
-
-    </main>
-
-    <!-- ========================================================================= -->
-    <!-- 6. FOOTER                                                                 -->
-    <!-- ========================================================================= -->
-    <footer class="mt-auto border-t border-slate-200 dark:border-cyber-border py-5 text-center text-xs text-slate-500 dark:text-slate-400 font-mono">
-      <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div class="flex items-center gap-2">
-          <span>Deployment Stack: Tailwind CSS &bull; Vanilla JS &bull; Supabase Postgres &bull; Lucide &bull; Vercel Edge</span>
-        </div>
-        <div class="text-slate-400 dark:text-slate-500">
-          Cloud IDS &amp; IPS Security Command Center &bull; Production Ready
-        </div>
-      </div>
-    </footer>
-
+<!-- TITLE -->
+<section class="slide" data-who="Swogradhini">
+ <div class="split">
+  <div>
+   <div class="kicker">Team Xynova • Adarsh College of Engineering</div>
+   <h1>Sentinel <span class="grad">AI</span></h1>
+   <p class="sub">A Network Intrusion Detection System that also blocks attacks automatically.</p>
+   <span class="tag">Swogradhini</span><span class="tag">Vijay Bhaskar</span><span class="tag">Sravani</span><span class="tag">Ganesh</span>
   </div>
+  <div class="vis float"><svg viewBox="0 0 400 400" aria-label="Radar shield">
+   <defs><radialGradient id="rg"><stop offset="0" stop-color="var(--accent)" stop-opacity=".35"/><stop offset="1" stop-color="var(--accent)" stop-opacity="0"/></radialGradient>
+   <linearGradient id="sh" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--accent)"/><stop offset="1" stop-color="var(--accent2)"/></linearGradient></defs>
+   <circle cx="200" cy="200" r="180" fill="url(#rg)"/>
+   <g fill="none" stroke="var(--border)" stroke-width="1.5"><circle cx="200" cy="200" r="60"/><circle cx="200" cy="200" r="120"/><circle cx="200" cy="200" r="180"/><path d="M20 200H380M200 20V380"/></g>
+   <g class="sweep"><path d="M200 200 L380 200 A180 180 0 0 0 330 73 Z" fill="var(--accent)" opacity=".22"/></g>
+   <path d="M200 120 L262 145 V205 C262 245 232 272 200 286 C168 272 138 245 138 205 V145 Z" fill="url(#sh)"/>
+   <path d="M174 205 L194 225 L228 182" fill="none" stroke="var(--bg)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+   <g fill="var(--danger)"><circle class="ping" cx="320" cy="110" r="7"/><circle class="ping" cx="80" cy="150" r="7" style="animation-delay:.6s"/><circle class="ping" cx="110" cy="320" r="7" style="animation-delay:1.1s"/><circle class="ping" cx="300" cy="300" r="7" style="animation-delay:1.6s"/></g>
+  </svg></div>
+ </div>
+</section>
 
-  <!-- ========================================================================= -->
-  <!-- 7. AI ANALYSIS MODAL ("Ask AI")                                           -->
-  <!-- ========================================================================= -->
-  <div id="aiModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-all duration-200">
-    <div class="relative w-full max-w-lg rounded-2xl border shadow-2xl overflow-hidden transition-all bg-white border-slate-200 text-slate-800 dark:bg-cyber-surface dark:border-cyan-500/50 dark:text-slate-100 dark:shadow-neon-cyan/20">
-      
-      <!-- Modal Header -->
-      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-cyber-border bg-slate-50 dark:bg-cyber-card">
-        <div class="flex items-center gap-2.5">
-          <div class="p-1.5 rounded-lg bg-blue-100 text-blue-700 dark:bg-cyber-cyan/15 dark:text-cyber-cyan">
-            <i data-lucide="bot" class="w-5 h-5"></i>
-          </div>
-          <div>
-            <h3 class="font-bold text-sm sm:text-base font-mono">SENTINEL AI Threat Analyst</h3>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400 font-mono">Heuristic Remediation &amp; MITRE ATT&amp;CK Mapping</p>
-          </div>
-        </div>
-        <button id="closeAiModalBtn" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
+<!-- TOPIC -->
+<section class="slide" data-who="Swogradhini">
+ <div class="kicker">Our topic</div>
+ <h2>Network Intrusion <span class="grad">Detection</span> System (IDS)</h2>
+ <p class="sub">An IDS watches the data moving through a network in real time, checks it for suspicious activity, and raises an alert.</p>
+ <div class="grid">
+  <div class="card"><div class="ic">👁️</div><h3>Watches</h3><p>All network traffic, live.</p></div>
+  <div class="card"><div class="ic">🔬</div><h3>Analyzes</h3><p>Looks inside the data for suspicious patterns.</p></div>
+  <div class="card"><div class="ic">🚨</div><h3>Alerts</h3><p>Tells the team the moment something looks wrong.</p></div>
+ </div>
+ <div class="simple"><b>In simple words:</b> an IDS is like a CCTV camera for a network.</div>
+</section>
 
-      <!-- Modal Body -->
-      <div class="p-6 space-y-4 font-mono text-xs sm:text-sm">
-        <div class="grid grid-cols-2 gap-3 p-3 rounded-xl bg-slate-100 dark:bg-cyber-card border border-slate-200 dark:border-cyber-border">
-          <div>
-            <span class="text-[10px] uppercase text-slate-400 block font-bold">Target Threat IP</span>
-            <span id="aiModalIp" class="font-bold text-slate-800 dark:text-cyber-cyan font-mono select-all">185.220.101.5</span>
-          </div>
-          <div>
-            <span class="text-[10px] uppercase text-slate-400 block font-bold">Attack Classification</span>
-            <span id="aiModalType" class="font-bold text-red-600 dark:text-cyber-red font-mono">DDoS SYN Flood</span>
-          </div>
-        </div>
+<!-- IPS -->
+<section class="slide" data-who="Swogradhini">
+ <div class="kicker">Our extra step</div>
+ <h2>We added an <span class="grad">IPS</span> for more security</h2>
+ <p class="sub">An IDS only <b>tells</b> you about an attack. It does not stop it. So we added an IPS, which <b>blocks</b> the attacker automatically.</p>
+ <div class="grid">
+  <div class="card"><div class="ic">🛡️</div><h3>More security</h3><p>The attack is stopped, not just reported.</p></div>
+  <div class="card"><div class="ic">⚡</div><h3>Fast response</h3><p>Blocked in 2 seconds.</p></div>
+  <div class="card"><div class="ic">🤖</div><h3>No human needed</h3><p>Works automatically, even at 3 AM.</p></div>
+ </div>
+ <div class="flow" style="margin-top:20px"><div class="card ids"><h3>IDS</h3><p>Detect</p></div><span class="op">+</span><div class="card ips"><h3>IPS</h3><p>Block</p></div><span class="op">=</span><div class="card"><h3>Sentinel AI</h3><p>Detect + Block</p></div></div>
+</section>
 
-        <div>
-          <h4 class="text-xs uppercase font-bold text-slate-500 dark:text-slate-400 tracking-wider mb-1 flex items-center gap-1.5">
-            <i data-lucide="terminal" class="w-3.5 h-3.5 text-blue-500 dark:text-cyber-neon"></i>
-            Sentinel Neural Intel Assessment
-          </h4>
-          <div id="aiModalAssessment" class="p-3.5 rounded-xl leading-relaxed text-xs bg-slate-50 dark:bg-black/50 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300">
-            Analyzing telemetry signatures...
-          </div>
-        </div>
+<!-- 4 IDS vs IPS -->
+<section class="slide r2" data-who="Swogradhini">
+ <div class="kicker">The basics</div>
+ <h2>IDS <span class="grad">watches</span>. IPS <span class="grad">acts</span>.</h2>
+ <p class="sub">Our hackathon topic is the IDS. We added an IPS on top so the system can also respond.</p>
+ <div class="grid" style="grid-template-columns:1fr 1fr">
+  <div class="card ids"><span class="badge b-ids">CORE • HACKATHON TOPIC</span><h3>IDS — Intrusion Detection</h3><p>Inspects network traffic in real time, spots suspicious packets and raises an alert. It observes and reports.</p></div>
+  <div class="card ips"><span class="badge b-ips">ADD-ON</span><h3>IPS — Intrusion Prevention</h3><p>Takes the IDS verdict and responds: blocks the source automatically (Auto-Defense, 2 seconds).</p></div>
+ </div>
+ <p class="note">Analogy: IDS is the CCTV camera. IPS is the security guard who acts on what the camera sees.</p>
+</section>
 
-        <div>
-          <div class="flex items-center justify-between mb-1">
-            <h4 class="text-xs uppercase font-bold text-slate-500 dark:text-slate-400 tracking-wider flex items-center gap-1.5">
-              <i data-lucide="shield" class="w-3.5 h-3.5 text-emerald-500 dark:text-cyber-cyan"></i>
-              Mitigation Rule (iptables / eBPF / nftables)
-            </h4>
-            <span class="text-[10px] text-slate-400 font-mono">Ready to apply</span>
-          </div>
-          
-          <div class="relative group">
-            <div class="p-3 pr-24 rounded-lg bg-slate-900 text-emerald-400 text-xs overflow-x-auto border border-slate-800 font-mono">
-              <code id="aiModalRule">iptables -A INPUT -s 185.220.101.5 -j DROP</code>
-            </div>
-            <button id="copyRuleBtn" class="absolute right-2 top-2 px-2.5 py-1 text-[11px] font-mono rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 flex items-center gap-1.5 transition-all active:scale-95">
-              <i id="copyRuleIcon" data-lucide="copy" class="w-3 h-3"></i>
-              <span id="copyRuleText">Copy</span>
-            </button>
-          </div>
-        </div>
-      </div>
+<!-- WHY -->
+<section class="slide" data-who="Swogradhini">
+ <div class="kicker">Why this app?</div>
+ <h2>The <span class="grad">problems</span> we saw</h2>
+ <div class="grid">
+  <div class="card"><div class="ic">⚡</div><h3>Attacks are fast</h3><p>Bots send thousands of requests every second.</p></div>
+  <div class="card"><div class="ic">🐢</div><h3>Humans are slow</h3><p>People need time to notice and react.</p></div>
+  <div class="card"><div class="ic">😵</div><h3>Alerts are confusing</h3><p>Technical alerts are hard for beginners to understand.</p></div>
+  <div class="card"><div class="ic">🧩</div><h3>No shared live view</h3><p>Team members see different or old screens.</p></div>
+ </div>
+ <div class="simple"><b>In simple words:</b> attacks are fast, but defense is slow and confusing.</div>
+</section>
 
-      <!-- Modal Footer -->
-      <div class="flex items-center justify-end gap-3 px-6 py-3.5 border-t border-slate-200 dark:border-cyber-border bg-slate-50 dark:bg-cyber-card">
-        <button id="closeAiModalBtn2" class="px-4 py-2 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors font-mono">
-          Dismiss
-        </button>
-        <button id="aiModalMitigateBtn" class="px-4 py-2 text-xs font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 dark:bg-cyber-neon dark:text-black dark:hover:bg-emerald-400 font-mono transition-all shadow-sm active:scale-95">
-          Execute Immediate Block
-        </button>
-      </div>
+<!-- CHOSE -->
+<section class="slide r2" data-who="Swogradhini">
+ <div class="kicker">Why this concept?</div>
+ <h2>Why we chose <span class="grad">IDS + IPS</span></h2>
+ <div class="grid">
+  <div class="card"><div class="ic">🌐</div><h3>Everyone needs protection</h3><p>Websites, colleges and companies all face attacks.</p></div>
+  <div class="card"><div class="ic">🚫</div><h3>Detection is not enough</h3><p>We wanted to stop attacks too, so we added the IPS.</p></div>
+  <div class="card"><div class="ic">🧒</div><h3>Security should be easy</h3><p>Plain words and AI help, so anyone can follow.</p></div>
+  <div class="card"><div class="ic">🧪</div><h3>Safe to demonstrate</h3><p>We use dummy data, so nobody is harmed.</p></div>
+ </div>
+</section>
 
-    </div>
+<!-- 2 DISCLOSURE -->
+<section class="slide" data-who="Vijay Bhaskar">
+ <div class="kicker">Before we begin • Important</div>
+ <h2>Why our demo uses <span class="grad">dummy data</span></h2>
+ <p class="sub">Testing with real, live attacks means attacking or accessing real systems without permission — that is illegal. So we simulate attacks safely.</p>
+ <div class="grid">
+  <div class="card"><div class="ic">🎭</div><h3>Simulated</h3><p>Attack events, IPs, countries, traffic graph, Mbps numbers and the eBPF kernel feed.</p></div>
+  <div class="card"><div class="ic">✅</div><h3>Real &amp; working</h3><p>Supabase database, WebSocket sync, Auto-Defense logic, block status, search and CSV export.</p></div>
+  <div class="card"><div class="ic">🏗️</div><h3>Production path</h3><p>Same pipeline, fed only by systems the owner has authorized.</p></div>
+ </div>
+ <p class="note"><b>Important:</b> the app works exactly like a real-time system. Only the attack data is simulated. Sample IPs do not identify real attackers.</p>
+</section>
+
+<!-- MEET -->
+<section class="slide" data-who="Vijay Bhaskar">
+ <div class="kicker">Meet our project</div>
+ <h2>Sentinel <span class="grad">AI</span></h2>
+ <p class="sub">A real-time network security dashboard. It detects attacks, explains them with AI help, and blocks them automatically.</p>
+ <div class="grid">
+  <div class="card"><div class="ic">👁️</div><h3>Detect</h3><p>Attacks appear live on every screen.</p></div>
+  <div class="card"><div class="ic">🧠</div><h3>Decide</h3><p>Ask AI explains the attack and suggests a fix.</p></div>
+  <div class="card"><div class="ic">🛡️</div><h3>Defend</h3><p>Auto-Defense blocks the attacker in 2 seconds.</p></div>
+ </div>
+ <div class="simple"><b>In simple words:</b> one website that finds attacks, explains them and stops them.</div>
+</section>
+
+<!-- SOLUTION -->
+<section class="slide" data-who="Vijay Bhaskar">
+ <div class="kicker">Our solution</div>
+ <h2>How Sentinel AI <span class="grad">works</span></h2>
+ <p class="sub">Five steps, from attack to block.</p>
+ <div class="flow">
+  <div class="card ids"><div class="ic">🌐</div><h3>1 Traffic</h3><p>Data enters the network</p></div><span class="arrow">➜</span>
+  <div class="card ids"><div class="ic">👁️</div><h3>2 IDS detects</h3><p>Spots suspicious activity</p></div><span class="arrow">➜</span>
+  <div class="card ids"><div class="ic">🚨</div><h3>3 Live alert</h3><p>Shown on every screen</p></div><span class="arrow">➜</span>
+  <div class="card"><div class="ic">🧠</div><h3>4 Ask AI</h3><p>Explains and suggests a fix</p></div><span class="arrow">➜</span>
+  <div class="card ips"><div class="ic">🛡️</div><h3>5 IPS blocks</h3><p>Automatically, in 2 seconds</p></div>
+ </div>
+ <div class="simple"><b>In simple words:</b> the attack comes in, the IDS spots it, everyone sees it, AI explains it, and the IPS blocks it.</div>
+</section>
+
+<!-- 5 PIPELINE -->
+<section class="slide r2" data-who="Vijay Bhaskar">
+ <div class="kicker">Real-time packet analysis</div>
+ <h2>From packet to <span class="grad">verdict</span></h2>
+ <p class="sub">Every event passes through the same six steps.</p>
+ <div class="flow">
+  <div class="card ids"><div class="ic">📥</div><h3>1 Capture</h3><p>Packets / events arrive</p></div><span class="arrow">➜</span>
+  <div class="card ids"><div class="ic">🔬</div><h3>2 Inspect</h3><p>IP, port, flags, payload</p></div><span class="arrow">➜</span>
+  <div class="card ids"><div class="ic">⚖️</div><h3>3 Analyze</h3><p>Patterns + rates vs thresholds</p></div><span class="arrow">➜</span>
+  <div class="card ids"><div class="ic">🏷️</div><h3>4 Classify</h3><p>Attack type + severity</p></div><span class="arrow">➜</span>
+  <div class="card ids"><div class="ic">🚨</div><h3>5 Alert</h3><p>Live on dashboard</p></div><span class="arrow">➜</span>
+  <div class="card ips"><div class="ic">🛡️</div><h3>6 Block</h3><p>IPS add-on responds</p></div>
+ </div>
+ <p class="note">Steps 1–5 = IDS (our topic). Step 6 = IPS add-on. In this demo, step 1 is fed by our Attack Simulator.</p>
+</section>
+
+<!-- 6 WARNING SIGNS -->
+<section class="slide r2" data-who="Vijay Bhaskar">
+ <div class="kicker">What does the IDS look for?</div>
+ <h2>3 easy <span class="grad">warning signs</span></h2>
+ <p class="sub">The IDS watches data moving on the network and spots bad behavior.</p>
+ <div class="grid">
+  <div class="card"><div class="ic">🔔</div><h3>Too many knocks</h3><p>One source sends thousands of connection requests every second.</p><p style="margin-top:8px"><b style="color:var(--danger)">= Flood attack (DDoS)</b></p><p style="font-size:.85rem">Like ringing a doorbell 1,000 times so the owner cannot get out.</p></div>
+  <div class="card"><div class="ic">🔑</div><h3>Too many wrong passwords</h3><p>Hundreds of failed logins in one second.</p><p style="margin-top:8px"><b style="color:var(--danger)">= Password guessing (Brute force)</b></p><p style="font-size:.85rem">Like trying 50 keys on one lock.</p></div>
+  <div class="card"><div class="ic">💉</div><h3>Trick commands</h3><p>Database commands hidden inside a normal web form.</p><p style="margin-top:8px"><b style="color:var(--danger)">= SQL injection</b></p><p style="font-size:.85rem">Like writing a secret order on a food order slip.</p></div>
+ </div>
+ <div class="simple"><b>In simple words:</b> the IDS knows what bad behavior looks like. When it sees it, it raises an alert.</div>
+ <p class="note">It also checks for hidden attacker code and requests to a secret cloud-key address. Numbers in the demo are examples.</p>
+</section>
+
+<!-- 7 METHODS -->
+<section class="slide r2" data-who="Vijay Bhaskar">
+ <div class="kicker">How does it decide?</div>
+ <h2>3 simple <span class="grad">checks</span></h2>
+ <div class="grid">
+  <div class="card"><div class="ic">📃</div><h3>1. Known bad patterns</h3><p>Like a wanted-poster list. If the traffic matches a known attack pattern, raise an alert.</p></div>
+  <div class="card"><div class="ic">⚡</div><h3>2. Too much, too fast</h3><p>Count requests per second. If the number is far above normal, something is wrong.</p></div>
+  <div class="card"><div class="ic">🌡️</div><h3>3. Danger score</h3><p>Give a score from 0 to 100. Then label it Low, Medium, High or Critical.</p></div>
+ </div>
+ <div class="simple"><b>In simple words:</b> match the pattern, check the speed, give a danger level.</div>
+</section>
+
+<!-- 8 ATTACK TYPES -->
+<section class="slide r2" data-who="Vijay Bhaskar">
+ <div class="kicker">What attacks can it find?</div>
+ <h2>6 common <span class="grad">attacks</span></h2>
+ <div class="grid">
+  <div class="card"><div class="ic">🌊</div><h3>Flood (DDoS)</h3><p>Too many requests, so the website crashes.</p></div>
+  <div class="card"><div class="ic">💉</div><h3>SQL injection</h3><p>Tricking the database with hidden commands.</p></div>
+  <div class="card"><div class="ic">☠️</div><h3>Remote code attack</h3><p>An unknown weakness lets the attacker run their own code.</p></div>
+  <div class="card"><div class="ic">🔑</div><h3>Credential stuffing</h3><p>Trying leaked passwords on many accounts.</p></div>
+  <div class="card"><div class="ic">🔒</div><h3>Ransomware signal</h3><p>An infected computer calls its boss to lock your files.</p></div>
+  <div class="card"><div class="ic">🖥️</div><h3>Password guessing (SSH)</h3><p>A bot guesses the server's login password.</p></div>
+ </div>
+</section>
+
+<!-- FEATURES -->
+<section class="slide" data-who="Vijay Bhaskar">
+ <div class="kicker">Our solution</div>
+ <h2>Every problem has a <span class="grad">fix</span></h2>
+ <div class="grid">
+  <div class="card"><h3>⚡ Attacks are fast</h3><p>➜ <b>Auto-Defense</b> blocks in 2 seconds.</p></div>
+  <div class="card"><h3>🐢 Humans are slow</h3><p>➜ <b>No human needed</b> to block.</p></div>
+  <div class="card"><h3>😵 Alerts confuse</h3><p>➜ <b>Ask AI</b> explains in plain words.</p></div>
+  <div class="card"><h3>🧩 No shared view</h3><p>➜ <b>Live sync</b> on laptop and phone.</p></div>
+ </div>
+ <div style="margin-top:16px"><span class="tag">Search &amp; filter</span><span class="tag">CSV audit report</span><span class="tag">Dark / Light theme</span><span class="tag">Sound alerts</span><span class="tag">Attack simulator</span></div>
+</section>
+
+<!-- 5 DASHBOARD -->
+<section class="slide r2" data-who="Vijay Bhaskar">
+ <div class="split">
+  <div>
+   <div class="kicker">The control room</div>
+   <h2>Everything on <span class="grad">one screen</span></h2>
+   <p class="sub">Here is what each part of the screen means, in simple words.</p>
+   <div class="grid" style="grid-template-columns:1fr">
+    <div class="card"><h3>🚨 Top banner</h3><p>Red = attacks happening now. Green = all clear.</p></div>
+    <div class="card"><h3>🔢 4 number boxes</h3><p>Traffic, active attacks, blocked attacks, and how many we stopped.</p></div>
+    <div class="card"><h3>📋 Table</h3><p>One row for every alert. Each row has Ask AI and Block IP buttons.</p></div>
+   </div>
+   <div class="simple"><b>In simple words:</b> this is the control room. One screen shows every attack and what we did about it.</div>
   </div>
-
-  <!-- ========================================================================= -->
-  <!-- 8. JAVASCRIPT LOGIC & SUPABASE INTEGRATION                                -->
-  <!-- ========================================================================= -->
-  <script>
-    /* =========================================================================
-       SUPABASE CONFIGURATION & REALTIME SETUP (Configured with Live Project)
-       ========================================================================= */
-    const SUPABASE_CONFIG = {
-      ENABLED: true,
-      URL: 'https://zdcvfkannwgnsmocpaea.supabase.co',
-      ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpkY3Zma2FubndnbnNtb2NwYWVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE1MjYyNzcsImV4cCI6MjEwNzEwMjI3N30.jn9-FGkd2KgcfwkY339DntAKpbFlTnyy2xNHBoK_Emo',
-    };
-
-    let supabaseClient = null;
-
-    /* -------------------------------------------------------------------------
-       STATE & RICH INITIAL THREAT TELEMETRY DATA (With ASNs & Target Ports)
-       ------------------------------------------------------------------------- */
-    const DEFAULT_SCENARIO_THREATS = [
-      {
-        id: 'thr-live-01',
-        created_at: new Date(Date.now() - 1000 * 20).toISOString(),
-        source_ip: '185.220.101.5',
-        asn: 'AS12389 (Rostelecom)',
-        target_port: 'TCP:443 (HTTPS Ingress)',
-        origin_country: 'RU',
-        country_name: 'Russia',
-        flag: '🇷🇺',
-        attack_type: 'DDoS SYN Flood',
-        severity: 'Critical',
-        status: 'Active'
-      },
-      {
-        id: 'thr-live-02',
-        created_at: new Date(Date.now() - 1000 * 65).toISOString(),
-        source_ip: '45.154.255.89',
-        asn: 'AS4134 (China Telecom)',
-        target_port: 'TCP:8080 (REST API Gateway)',
-        origin_country: 'CN',
-        country_name: 'China',
-        flag: '🇨🇳',
-        attack_type: 'SQL Injection',
-        severity: 'High',
-        status: 'Active'
-      },
-      {
-        id: 'thr-live-03',
-        created_at: new Date(Date.now() - 1000 * 120).toISOString(),
-        source_ip: '203.145.109.111',
-        asn: 'AS7552 (Viettel Corp)',
-        target_port: 'TCP:80 (HTTP / Internal Proxy)',
-        origin_country: 'VN',
-        country_name: 'Vietnam',
-        flag: '🇻🇳',
-        attack_type: 'SSRF Cloud Metadata Exfil',
-        severity: 'Critical',
-        status: 'Active'
-      },
-      {
-        id: 'thr-live-04',
-        created_at: new Date(Date.now() - 1000 * 300).toISOString(),
-        source_ip: '103.251.167.20',
-        asn: 'AS20001 (APT38 Lazarus Net)',
-        target_port: 'TCP:443 (Envoy Gateway)',
-        origin_country: 'KP',
-        country_name: 'North Korea',
-        flag: '🇰🇵',
-        attack_type: 'Zero-Day RCE Exploit',
-        severity: 'Critical',
-        status: 'Blocked'
-      },
-      {
-        id: 'thr-live-05',
-        created_at: new Date(Date.now() - 1000 * 550).toISOString(),
-        source_ip: '194.26.29.112',
-        asn: 'AS58224 (Telecommunication Co Iran)',
-        target_port: 'TCP:22 (SSH Bastion)',
-        origin_country: 'IR',
-        country_name: 'Iran',
-        flag: '🇮🇷',
-        attack_type: 'SSH Brute Force',
-        severity: 'Medium',
-        status: 'Blocked'
-      },
-      {
-        id: 'thr-live-06',
-        created_at: new Date(Date.now() - 1000 * 900).toISOString(),
-        source_ip: '91.240.118.172',
-        asn: 'AS28573 (Claro Brasil)',
-        target_port: 'TCP:5432 (PostgreSQL Auth)',
-        origin_country: 'BR',
-        country_name: 'Brazil',
-        flag: '🇧🇷',
-        attack_type: 'API Credential Stuffing',
-        severity: 'High',
-        status: 'Blocked'
-      }
-    ];
-
-    let threats = JSON.parse(JSON.stringify(DEFAULT_SCENARIO_THREATS));
-    let autoDefenseEnabled = true;
-    let liveStreamActive = false;
-    let liveStreamInterval = null;
-    let soundEnabled = true;
-    let selectedThreatForAi = null;
-    let totalTrafficCounter = 1504965;
-    const pendingQuarantines = new Set();
-
-    // Attack Vectors & Targets Pool
-    const ATTACK_POOL = [
-      { type: 'DDoS SYN Flood', severity: 'Critical', port: 'TCP:443 (HTTPS Ingress)' },
-      { type: 'SQL Injection', severity: 'High', port: 'TCP:8080 (REST API)' },
-      { type: 'Zero-Day RCE Exploit', severity: 'Critical', port: 'TCP:443 (Envoy Ingress)' },
-      { type: 'SSH Brute Force', severity: 'Medium', port: 'TCP:22 (SSH Bastion)' },
-      { type: 'API Credential Stuffing', severity: 'High', port: 'TCP:5432 (Postgres Vault)' },
-      { type: 'Cross-Site Scripting (XSS)', severity: 'Low', port: 'TCP:80 (Web Frontend)' },
-      { type: 'DNS Amplification', severity: 'High', port: 'UDP:53 (CoreDNS)' },
-      { type: 'Ransomware C2 Beacon', severity: 'Critical', port: 'TCP:8443 (Outbound Proxy)' },
-      { type: 'SSRF Cloud Metadata Exfil', severity: 'Critical', port: 'TCP:80 (EC2 Metadata)' },
-      { type: 'XML External Entity (XXE)', severity: 'Medium', port: 'TCP:8080 (SOAP Parser)' }
-    ];
-
-    const ASN_POOL = [
-      'AS12389 (Rostelecom)',
-      'AS4134 (China Telecom)',
-      'AS15169 (Google Cloud Proxy)',
-      'AS8075 (Microsoft Azure)',
-      'AS20001 (Kimsuky Botnet)',
-      'AS58224 (Iran Data Gateway)',
-      'AS28573 (Claro Brasil)',
-      'AS13335 (Cloudflare Tor Exit)',
-      'AS3257 (GTT Communications)',
-      'AS6939 (Hurricane Electric)'
-    ];
-
-    const COUNTRY_POOL = [
-      { code: 'RU', name: 'Russia', flag: '🇷🇺' },
-      { code: 'CN', name: 'China', flag: '🇨🇳' },
-      { code: 'US', name: 'United States', flag: '🇺🇸' },
-      { code: 'KP', name: 'North Korea', flag: '🇰🇵' },
-      { code: 'IR', name: 'Iran', flag: '🇮🇷' },
-      { code: 'BR', name: 'Brazil', flag: '🇧🇷' },
-      { code: 'DE', name: 'Germany', flag: '🇩🇪' },
-      { code: 'NL', name: 'Netherlands', flag: '🇳🇱' },
-      { code: 'UA', name: 'Ukraine', flag: '🇺🇦' },
-      { code: 'VN', name: 'Vietnam', flag: '🇻🇳' },
-      { code: 'GB', name: 'United Kingdom', flag: '🇬🇧' },
-      { code: 'SG', name: 'Singapore', flag: '🇸🇬' }
-    ];
-
-    /* -------------------------------------------------------------------------
-       DOM REFERENCES
-       ------------------------------------------------------------------------- */
-    const threatTableBody = document.getElementById('threatTableBody');
-    const autoDefenseToggle = document.getElementById('autoDefenseToggle');
-    const autoDefenseLabel = document.getElementById('autoDefenseLabel');
-    const simulateBtn = document.getElementById('simulateBtn');
-    const reseedBtn = document.getElementById('reseedBtn');
-    const exportBtn = document.getElementById('exportBtn');
-    const themeToggleBtn = document.getElementById('themeToggleBtn');
-    const soundToggleBtn = document.getElementById('soundToggleBtn');
-    const soundIcon = document.getElementById('soundIcon');
-    const liveStreamToggleBtn = document.getElementById('liveStreamToggleBtn');
-    const liveStreamLabel = document.getElementById('liveStreamLabel');
-    const liveStreamDot = document.getElementById('liveStreamDot');
-    const searchFilter = document.getElementById('searchFilter');
-    const clearFiltersBtn = document.getElementById('clearFiltersBtn');
-    const recordCountBadge = document.getElementById('recordCountBadge');
-    const syncStatusText = document.getElementById('syncStatusText');
-    const kernelLogsContainer = document.getElementById('kernelLogsContainer');
-
-    // Stat Elements
-    const statTotalTraffic = document.getElementById('statTotalTraffic');
-    const statActiveThreats = document.getElementById('statActiveThreats');
-    const statBlockedThreats = document.getElementById('statBlockedThreats');
-    const activeThreatBadge = document.getElementById('activeThreatBadge');
-
-    // Live Alert Banner
-    const liveAlertBanner = document.getElementById('liveAlertBanner');
-    const liveAlertMessage = document.getElementById('liveAlertMessage');
-
-    // Chart Canvas Elements
-    const trafficCanvas = document.getElementById('trafficCanvas');
-    const liveMbpsValue = document.getElementById('liveMbpsValue');
-    const liveAnomalySpikes = document.getElementById('liveAnomalySpikes');
-    const chartAlertBadge = document.getElementById('chartAlertBadge');
-
-    // AI Modal Elements
-    const aiModal = document.getElementById('aiModal');
-    const closeAiModalBtn = document.getElementById('closeAiModalBtn');
-    const closeAiModalBtn2 = document.getElementById('closeAiModalBtn2');
-    const aiModalMitigateBtn = document.getElementById('aiModalMitigateBtn');
-    const aiModalIp = document.getElementById('aiModalIp');
-    const aiModalType = document.getElementById('aiModalType');
-    const aiModalAssessment = document.getElementById('aiModalAssessment');
-    const aiModalRule = document.getElementById('aiModalRule');
-    const copyRuleBtn = document.getElementById('copyRuleBtn');
-    const copyRuleText = document.getElementById('copyRuleText');
-
-    /* -------------------------------------------------------------------------
-       SCI-FI WEB AUDIO SYNTHESIZER (Pure Web Audio API - Zero External Files)
-       ------------------------------------------------------------------------- */
-    let audioCtx = null;
-    function getAudioContext() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      return audioCtx;
-    }
-
-    function playSound(type) {
-      if (!soundEnabled) return;
-      try {
-        const ctx = getAudioContext();
-        if (ctx.state === 'suspended') ctx.resume();
-
-        if (type === 'alarm') {
-          // Futuristic cyber threat alarm blip
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(880, ctx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.18);
-          gain.gain.setValueAtTime(0.08, ctx.currentTime);
-          gain.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.18);
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start();
-          osc.stop(ctx.currentTime + 0.18);
-        } else if (type === 'quarantine') {
-          // Futuristic laser lock / quarantine chime
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(520, ctx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(1040, ctx.currentTime + 0.15);
-          gain.gain.setValueAtTime(0.09, ctx.currentTime);
-          gain.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.15);
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start();
-          osc.stop(ctx.currentTime + 0.15);
-        } else if (type === 'click') {
-          // Subtle UI cyber tick
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(1200, ctx.currentTime);
-          gain.gain.setValueAtTime(0.03, ctx.currentTime);
-          gain.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.05);
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start();
-          osc.stop(ctx.currentTime + 0.05);
-        }
-      } catch (err) {
-        // Audio policy or unsupported
-      }
-    }
-
-    soundToggleBtn.addEventListener('click', () => {
-      soundEnabled = !soundEnabled;
-      soundIcon.setAttribute('data-lucide', soundEnabled ? 'volume-2' : 'volume-x');
-      lucide.createIcons();
-      showToast(soundEnabled ? 'Cyber Audio Effects: ENABLED' : 'Cyber Audio Effects: MUTED');
-    });
-
-    /* -------------------------------------------------------------------------
-       INITIALIZATION
-       ------------------------------------------------------------------------- */
-    document.addEventListener('DOMContentLoaded', () => {
-      initTheme();
-      initSupabase();
-      renderTable();
-      updateStats();
-      lucide.createIcons();
-      startTrafficTick();
-      startTelemetryCanvas();
-      seedKernelLogs();
-    });
-
-    /* -------------------------------------------------------------------------
-       THEME MANAGEMENT (Dark Hacker / Light Corporate SaaS)
-       ------------------------------------------------------------------------- */
-    function initTheme() {
-      const storedTheme = localStorage.getItem('sentinel_theme');
-      if (storedTheme === 'light') {
-        document.documentElement.classList.remove('dark');
-      } else {
-        document.documentElement.classList.add('dark');
-      }
-    }
-
-    themeToggleBtn.addEventListener('click', () => {
-      const isDark = document.documentElement.classList.toggle('dark');
-      localStorage.setItem('sentinel_theme', isDark ? 'dark' : 'light');
-      lucide.createIcons();
-      playSound('click');
-      showToast(isDark ? 'Hacker Cyber Dark Mode activated' : 'Corporate Clean SaaS Light Mode activated');
-    });
-
-    /* -------------------------------------------------------------------------
-       AUTO DEFENSE TOGGLE LOGIC
-       ------------------------------------------------------------------------- */
-    autoDefenseToggle.addEventListener('change', (e) => {
-      autoDefenseEnabled = e.target.checked;
-      playSound('click');
-      if (autoDefenseEnabled) {
-        autoDefenseLabel.textContent = 'ARMED';
-        autoDefenseLabel.className = 'text-xs font-semibold text-emerald-600 dark:text-cyber-neon font-mono';
-        showToast('Autonomous IPS: ARMED (2-second automatic quarantine active)');
-      } else {
-        autoDefenseLabel.textContent = 'DISARMED';
-        autoDefenseLabel.className = 'text-xs font-semibold text-amber-500 dark:text-cyber-yellow font-mono';
-        showToast('Autonomous IPS: DISARMED (Manual operator approval required)');
-      }
-    });
-
-    /* -------------------------------------------------------------------------
-       LIVE AMBIENT ATTACK STREAM (Automatic Background Traffic Generator)
-       ------------------------------------------------------------------------- */
-    liveStreamToggleBtn.addEventListener('click', () => {
-      liveStreamActive = !liveStreamActive;
-      playSound('click');
-      if (liveStreamActive) {
-        liveStreamLabel.textContent = 'Live Stream: ON';
-        liveStreamLabel.classList.add('text-cyan-400');
-        liveStreamDot.className = 'w-2 h-2 rounded-full bg-cyan-400 animate-ping';
-        showToast('Live Incursion Stream: ON (Streaming periodic zero-day incursions)');
-        liveStreamInterval = setInterval(() => {
-          simulateAttack(true);
-        }, 11000);
-      } else {
-        clearInterval(liveStreamInterval);
-        liveStreamLabel.textContent = 'Live Stream: OFF';
-        liveStreamLabel.classList.remove('text-cyan-400');
-        liveStreamDot.className = 'w-2 h-2 rounded-full bg-slate-400';
-        showToast('Live Incursion Stream: OFF');
-      }
-    });
-
-    /* -------------------------------------------------------------------------
-       RESEED / RESET SCENARIO (Never an empty or all-blocked state!)
-       ------------------------------------------------------------------------- */
-    reseedBtn.addEventListener('click', () => {
-      playSound('click');
-      threats = JSON.parse(JSON.stringify(DEFAULT_SCENARIO_THREATS)).map((t, idx) => ({
-        ...t,
-        created_at: new Date(Date.now() - (idx * 45000)).toISOString()
-      }));
-      renderTable();
-      updateStats();
-      showToast('Scenario re-seeded: 3 Active critical incursions injected for demonstration.');
-      logKernelEvent('SCENARIO_RELOAD', '127.0.0.1', 'All telemetry re-initialized with live baseline');
-    });
-
-    /* -------------------------------------------------------------------------
-       TABLE RENDERING & FILTERING
-       ------------------------------------------------------------------------- */
-    function formatTime(isoString) {
-      try {
-        const d = new Date(isoString);
-        return d.toLocaleTimeString('en-US', { hour12: false });
-      } catch (e) {
-        return 'Just now';
-      }
-    }
-
-    function renderTable() {
-      const filterText = (searchFilter.value || '').trim().toLowerCase();
-      
-      const filtered = threats.filter(t => {
-        if (!filterText) return true;
-        return (
-          t.source_ip.toLowerCase().includes(filterText) ||
-          t.attack_type.toLowerCase().includes(filterText) ||
-          (t.asn && t.asn.toLowerCase().includes(filterText)) ||
-          (t.country_name && t.country_name.toLowerCase().includes(filterText)) ||
-          t.origin_country.toLowerCase().includes(filterText) ||
-          (t.severity && t.severity.toLowerCase().includes(filterText)) ||
-          t.status.toLowerCase().includes(filterText)
-        );
-      });
-
-      if (filterText) {
-        recordCountBadge.textContent = `${filtered.length} of ${threats.length} Events`;
-      } else {
-        recordCountBadge.textContent = `${threats.length} Events`;
-      }
-
-      if (filtered.length === 0) {
-        threatTableBody.innerHTML = `
-          <tr>
-            <td colspan="6" class="text-center py-12 text-slate-400 dark:text-slate-500 font-mono">
-              <i data-lucide="shield-check" class="w-9 h-9 mx-auto mb-2 opacity-60"></i>
-              No threat telemetry matching "${escapeHtml(filterText)}"
-            </td>
-          </tr>
-        `;
-        lucide.createIcons();
-        return;
-      }
-
-      threatTableBody.innerHTML = filtered.map(item => createRowHtml(item)).join('');
-      lucide.createIcons();
-    }
-
-    function createRowHtml(threat) {
-      const isActive = threat.status === 'Active';
-      const isPendingQuarantine = pendingQuarantines.has(threat.id);
-
-      // Status Badge Design
-      const statusBadge = isActive ? `
-        <div class="flex flex-col items-start gap-1">
-          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700 border border-red-200 dark:bg-cyber-red/15 dark:text-cyber-red dark:border-cyber-red/30 shadow-[0_0_12px_rgba(255,0,85,0.25)]">
-            <span class="w-1.5 h-1.5 rounded-full bg-red-600 dark:bg-cyber-red animate-ping"></span>
-            Active Threat
-          </span>
-          ${isPendingQuarantine ? `
-            <span class="auto-defense-countdown inline-flex items-center gap-1 text-[10px] text-amber-600 dark:text-cyber-yellow font-mono">
-              <i data-lucide="timer" class="w-2.5 h-2.5 animate-spin"></i> Auto-blocking in 2s...
-            </span>
-          ` : ''}
-        </div>
-      ` : `
-        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200 dark:bg-cyber-neon/15 dark:text-cyber-neon dark:border-cyber-neon/30 transition-all duration-300">
-          <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
-          Blocked
-        </span>
-      `;
-
-      // Severity Badge
-      const severityColor = (threat.severity === 'Critical')
-        ? 'bg-red-100 text-red-800 border-red-300 dark:bg-cyber-red/20 dark:text-cyber-red dark:border-cyber-red/40'
-        : (threat.severity === 'High')
-        ? 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-cyber-yellow/20 dark:text-cyber-yellow dark:border-cyber-yellow/40'
-        : (threat.severity === 'Medium')
-        ? 'bg-blue-100 text-blue-800 border-blue-300 dark:bg-cyan-950/60 dark:text-cyan-400 dark:border-cyan-800'
-        : 'bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700';
-
-      return `
-        <tr id="row-${threat.id}" class="hover:bg-slate-50/80 dark:hover:bg-cyber-card/70 transition-colors duration-150 group">
-          
-          <!-- Timestamp -->
-          <td class="py-3.5 px-4 text-slate-500 dark:text-slate-400 whitespace-nowrap">
-            <span class="inline-flex items-center gap-1.5">
-              <i data-lucide="clock" class="w-3.5 h-3.5 opacity-60"></i>
-              ${formatTime(threat.created_at)}
-            </span>
-          </td>
-
-          <!-- Source IP & ASN -->
-          <td class="py-3.5 px-4 whitespace-nowrap">
-            <div class="flex flex-col gap-0.5">
-              <span onclick="copyTextToClipboard('${threat.source_ip}')" title="Click to copy IP" class="cursor-pointer font-bold px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono tracking-tight text-xs text-blue-600 dark:text-cyber-cyan select-all inline-flex items-center gap-1.5 transition-colors w-fit">
-                ${threat.source_ip}
-                <i data-lucide="copy" class="w-3 h-3 opacity-0 group-hover:opacity-60 transition-opacity"></i>
-              </span>
-              <span class="text-[10px] text-slate-400 font-mono">${threat.asn || 'AS12389 (Autonomous Net)'}</span>
-            </div>
-          </td>
-
-          <!-- Origin Country -->
-          <td class="py-3.5 px-4 text-slate-700 dark:text-slate-300 whitespace-nowrap">
-            <span class="inline-flex items-center gap-1.5">
-              <span class="text-base">${threat.flag || '🌐'}</span>
-              <span>${threat.country_name || threat.origin_country}</span>
-              <span class="text-[10px] text-slate-400 font-semibold">(${threat.origin_country})</span>
-            </span>
-          </td>
-
-          <!-- Attack Type, Severity & Target Port -->
-          <td class="py-3.5 px-4 whitespace-nowrap">
-            <div class="flex flex-col gap-1">
-              <div class="flex items-center gap-2">
-                <span class="font-medium text-slate-800 dark:text-slate-200">
-                  ${threat.attack_type}
-                </span>
-                <span class="px-1.5 py-0.2 rounded text-[10px] font-bold border font-mono uppercase ${severityColor}">
-                  ${threat.severity || 'High'}
-                </span>
-              </div>
-              <span class="text-[10px] text-slate-400 font-mono flex items-center gap-1">
-                <i data-lucide="shield" class="w-2.5 h-2.5 opacity-60"></i> Target: ${threat.target_port || 'TCP:443 (HTTPS Ingress)'}
-              </span>
-            </div>
-          </td>
-
-          <!-- Status -->
-          <td class="py-3.5 px-4 whitespace-nowrap status-cell">
-            ${statusBadge}
-          </td>
-
-          <!-- Actions -->
-          <td class="py-3.5 px-4 text-right whitespace-nowrap action-cell">
-            <div class="inline-flex items-center gap-2">
-              
-              <!-- Ask AI Button -->
-              <button 
-                onclick="handleAskAi('${threat.id}')"
-                class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all duration-150 bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300 dark:bg-cyber-card dark:border-cyber-border dark:text-cyan-400 dark:hover:bg-cyan-950/40 dark:hover:border-cyber-cyan shadow-sm active:scale-95"
-                title="Run Sentinel AI heuristic assessment"
-              >
-                <i data-lucide="sparkles" class="w-3.5 h-3.5 text-blue-500 dark:text-cyber-neon"></i>
-                <span>Ask AI</span>
-              </button>
-
-              <!-- Block IP Button -->
-              ${isActive ? `
-                <button 
-                  onclick="handleBlockIp('${threat.id}')"
-                  class="block-btn inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition-all duration-200 bg-red-600 hover:bg-red-700 text-white shadow-sm hover:shadow active:scale-95 dark:bg-cyber-red/20 dark:text-cyber-red dark:border dark:border-cyber-red/40 dark:hover:bg-cyber-red dark:hover:text-black"
-                  title="Push dynamic drop rule to firewall"
-                >
-                  <i data-lucide="shield-x" class="w-3.5 h-3.5"></i>
-                  <span>Block IP</span>
-                </button>
-              ` : `
-                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 dark:text-cyber-neon dark:bg-cyber-neon/10 dark:border-cyber-neon/20 cursor-default">
-                  <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
-                  Mitigated
-                </span>
-              `}
-
-            </div>
-          </td>
-
-        </tr>
-      `;
-    }
-
-    function escapeHtml(str) {
-      return (str || '').replace(/[&<>"']/g, m => ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-      }[m]));
-    }
-
-    /* -------------------------------------------------------------------------
-       SEARCH FILTER LISTENER
-       ------------------------------------------------------------------------- */
-    searchFilter.addEventListener('input', () => {
-      renderTable();
-    });
-
-    clearFiltersBtn.addEventListener('click', () => {
-      searchFilter.value = '';
-      renderTable();
-    });
-
-    /* -------------------------------------------------------------------------
-       STATISTICS & METRIC UPDATE LOGIC
-       ------------------------------------------------------------------------- */
-    function updateStats() {
-      const activeCount = threats.filter(t => t.status === 'Active').length;
-      const blockedCount = threats.filter(t => t.status === 'Blocked').length;
-
-      statActiveThreats.textContent = activeCount;
-      statBlockedThreats.textContent = blockedCount;
-
-      // Update color / alert if active threats exist
-      if (activeCount > 0) {
-        liveAlertBanner.className = 'transition-all duration-300 rounded-xl p-3.5 border flex items-center justify-between text-xs sm:text-sm font-mono bg-red-50 border-red-200 text-red-800 dark:bg-cyber-red/10 dark:border-cyber-red/40 dark:text-cyber-red shadow-[0_0_15px_rgba(255,0,85,0.15)]';
-        liveAlertMessage.textContent = `ALERT: ${activeCount} ACTIVE BREACH ATTEMPT${activeCount > 1 ? 'S' : ''} DETECTED ON EDGE INTERFACE`;
-        activeThreatBadge.className = 'text-xs font-mono px-2 py-0.5 rounded bg-red-100 text-red-700 dark:bg-cyber-red/20 dark:text-cyber-red border border-red-200 dark:border-cyber-red/30';
-        activeThreatBadge.textContent = 'HIGH RISK';
-      } else {
-        liveAlertBanner.className = 'transition-all duration-300 rounded-xl p-3.5 border flex items-center justify-between text-xs sm:text-sm font-mono bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-cyber-neon/10 dark:border-cyber-neon/30 dark:text-cyber-neon';
-        liveAlertMessage.textContent = `PERIMETER CLEAR: ALL THREATS SUCCESSFULLY QUARANTINED`;
-        activeThreatBadge.className = 'text-xs font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 dark:bg-cyber-neon/20 dark:text-cyber-neon border border-emerald-200 dark:border-cyber-neon/30';
-        activeThreatBadge.textContent = 'ZERO BREACH';
-      }
-    }
-
-    // Realistic ambient packet counter tick
-    function startTrafficTick() {
-      setInterval(() => {
-        totalTrafficCounter += Math.floor(Math.random() * 32) + 12;
-        statTotalTraffic.textContent = totalTrafficCounter.toLocaleString();
-      }, 1500);
-    }
-
-    /* -------------------------------------------------------------------------
-       SIMULATE ATTACK ACTION
-       ------------------------------------------------------------------------- */
-    simulateBtn.addEventListener('click', () => {
-      simulateAttack();
-    });
-
-    function generateRealisticPublicIp() {
-      const r = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-      const firstOctetPool = [45, 82, 91, 103, 114, 142, 178, 185, 194, 203];
-      const octet1 = firstOctetPool[Math.floor(Math.random() * firstOctetPool.length)];
-      return `${octet1}.${r(1, 254)}.${r(1, 254)}.${r(2, 254)}`;
-    }
-
-    function simulateAttack(isAmbient = false) {
-      const randomCountry = COUNTRY_POOL[Math.floor(Math.random() * COUNTRY_POOL.length)];
-      const randomAttack = ATTACK_POOL[Math.floor(Math.random() * ATTACK_POOL.length)];
-      const randomAsn = ASN_POOL[Math.floor(Math.random() * ASN_POOL.length)];
-      const newThreatId = 'thr-' + Math.random().toString(36).substring(2, 9);
-
-      const newThreat = {
-        id: newThreatId,
-        created_at: new Date().toISOString(),
-        source_ip: generateRealisticPublicIp(),
-        asn: randomAsn,
-        target_port: randomAttack.port,
-        origin_country: randomCountry.code,
-        country_name: randomCountry.name,
-        flag: randomCountry.flag,
-        attack_type: randomAttack.type,
-        severity: randomAttack.severity,
-        status: 'Active'
-      };
-
-      // Play audio alarm
-      playSound('alarm');
-
-      // Trigger spike on live canvas graph
-      triggerGraphSpike();
-
-      // Add to beginning of threat state array
-      threats.unshift(newThreat);
-
-      // Increment packet surge
-      totalTrafficCounter += Math.floor(Math.random() * 3500) + 1800;
-      statTotalTraffic.textContent = totalTrafficCounter.toLocaleString();
-
-      // Button animation pulse
-      simulateBtn.classList.add('scale-105');
-      setTimeout(() => simulateBtn.classList.remove('scale-105'), 180);
-
-      // Track if Auto-Defense should handle this
-      if (autoDefenseEnabled) {
-        pendingQuarantines.add(newThreatId);
-      }
-
-      // Render row with animation at top of table
-      prependThreatRow(newThreat);
-      updateStats();
-
-      // Log to eBPF kernel terminal
-      logKernelEvent('INGRESS_ANOMALY', newThreat.source_ip, `${newThreat.attack_type} on ${newThreat.target_port}`);
-
-      showToast(`Incursion detected: ${newThreat.source_ip} (${newThreat.attack_type})`);
-
-      // SUPABASE PERSISTENCE (Writes to live Supabase DB)
-      if (SUPABASE_CONFIG.ENABLED && supabaseClient) {
-        supabaseClient.from('network_threats').insert([{
-          source_ip: newThreat.source_ip,
-          origin_country: newThreat.origin_country,
-          attack_type: newThreat.attack_type,
-          severity: newThreat.severity,
-          status: newThreat.status
-        }]).then(({ error }) => {
-          if (error) console.error('[Supabase Insert Error]:', error);
-        });
-      }
-
-      // AUTONOMOUS IPS (Auto-Defense Mode):
-      // If ARMED (ON), automatically change status from 'Active' to 'Blocked' after exactly 2.0s
-      if (autoDefenseEnabled) {
-        setTimeout(() => {
-          pendingQuarantines.delete(newThreatId);
-          handleBlockIp(newThreatId, true);
-        }, 2000);
-      }
-    }
-
-    function prependThreatRow(threat) {
-      const filterText = (searchFilter.value || '').trim().toLowerCase();
-      if (filterText && 
-          !threat.source_ip.toLowerCase().includes(filterText) && 
-          !threat.attack_type.toLowerCase().includes(filterText) &&
-          !threat.origin_country.toLowerCase().includes(filterText)) {
-        renderTable();
-        return;
-      }
-
-      const tempContainer = document.createElement('tbody');
-      tempContainer.innerHTML = createRowHtml(threat);
-      const newRow = tempContainer.firstElementChild;
-      
-      // Add sliding enter animation
-      newRow.classList.add('animate-threat-enter');
-
-      // Clear empty state row if present
-      if (threatTableBody.querySelector('td[colspan="6"]')) {
-        threatTableBody.innerHTML = '';
-      }
-
-      threatTableBody.insertBefore(newRow, threatTableBody.firstChild);
-      recordCountBadge.textContent = `${threats.length} Events`;
-      lucide.createIcons();
-    }
-
-    /* -------------------------------------------------------------------------
-       BLOCK IP ACTION
-       ------------------------------------------------------------------------- */
-    window.handleBlockIp = function(threatId, isAutoTriggered = false) {
-      const targetThreat = threats.find(t => t.id === threatId);
-      if (!targetThreat || targetThreat.status === 'Blocked') return;
-
-      // Update state
-      targetThreat.status = 'Blocked';
-      pendingQuarantines.delete(threatId);
-
-      // Play quarantine audio chime
-      playSound('quarantine');
-
-      // Log to kernel terminal
-      logKernelEvent('eBPF_DROP_COMMIT', targetThreat.source_ip, `Kernel filter drop rule synthesized at XDP hook`);
-
-      // Smooth visual feedback on target row
-      const row = document.getElementById(`row-${threatId}`);
-      if (row) {
-        // Flash row with green mitigation indicator
-        row.classList.add('transition-all', 'duration-500');
-        row.style.backgroundColor = document.documentElement.classList.contains('dark') 
-          ? 'rgba(0, 255, 157, 0.20)' 
-          : 'rgba(16, 185, 129, 0.20)';
-
-        setTimeout(() => {
-          row.style.backgroundColor = '';
-        }, 800);
-
-        const statusCell = row.querySelector('.status-cell');
-        if (statusCell) {
-          statusCell.innerHTML = `
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200 dark:bg-cyber-neon/15 dark:text-cyber-neon dark:border-cyber-neon/30 transition-all duration-300">
-              <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
-              Blocked
-            </span>
-          `;
-        }
-
-        const actionCell = row.querySelector('.action-cell');
-        if (actionCell) {
-          actionCell.innerHTML = `
-            <div class="inline-flex items-center gap-2">
-              <button 
-                onclick="handleAskAi('${targetThreat.id}')"
-                class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all duration-150 bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300 dark:bg-cyber-card dark:border-cyber-border dark:text-cyan-400 dark:hover:bg-cyan-950/40 dark:hover:border-cyber-cyan shadow-sm active:scale-95"
-              >
-                <i data-lucide="sparkles" class="w-3.5 h-3.5 text-blue-500 dark:text-cyber-neon"></i>
-                <span>Ask AI</span>
-              </button>
-              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 dark:text-cyber-neon dark:bg-cyber-neon/10 dark:border-cyber-neon/20 cursor-default">
-                <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
-                Mitigated
-              </span>
-            </div>
-          `;
-        }
-
-        lucide.createIcons();
-      }
-
-      updateStats();
-
-      if (isAutoTriggered) {
-        showToast(`Auto-IPS: Neutralized ${targetThreat.source_ip} (Blocked)`);
-      } else {
-        showToast(`Manual Quarantine: ${targetThreat.source_ip} successfully blocked`);
-      }
-
-      // SUPABASE SYNC
-      if (SUPABASE_CONFIG.ENABLED && supabaseClient) {
-        supabaseClient
-          .from('network_threats')
-          .update({ status: 'Blocked' })
-          .eq('source_ip', targetThreat.source_ip)
-          .then(({ error }) => {
-            if (error) console.error('[Supabase Update Error]:', error);
-          });
-      }
-    };
-
-    /* -------------------------------------------------------------------------
-       ASK AI INTEL MODAL & MITRE ATT&CK HEURISTICS
-       ------------------------------------------------------------------------- */
-    window.handleAskAi = function(threatId) {
-      playSound('click');
-      const threat = threats.find(t => t.id === threatId);
-      if (!threat) return;
-      selectedThreatForAi = threat;
-
-      aiModalIp.textContent = threat.source_ip;
-      aiModalType.textContent = `${threat.attack_type} (${threat.severity || 'High'})`;
-
-      let analysisText = '';
-      let iptablesRule = '';
-
-      if (threat.attack_type.includes('DDoS')) {
-        analysisText = `Anomaly signature detected high-volumetric TCP SYN flood exceeding 145,000 packets/sec originating from ${threat.source_ip} (${threat.country_name || threat.origin_country}). Maps to MITRE ATT&CK T1498.001 (Direct Network Flood). Edge recommendation: Activate SYN cookies, drop source prefix at upstream border gateway, and enforce eBPF XDP filter.`;
-        iptablesRule = `iptables -I INPUT -p tcp --syn -s ${threat.source_ip} -j DROP && tc qdisc add dev eth0 root bpf obj xdp_drop.o`;
-      } else if (threat.attack_type.includes('SQL')) {
-        analysisText = `Deep packet payload analysis identified SQL injection attack vectors (UNION SELECT / OR '1'='1' tautology) targeting database API endpoints. Maps to MITRE ATT&CK T1190 (Exploit Public-Facing Application). Edge recommendation: Block source IP immediately, verify prepared statements in SQL ORM layer, and review database access logs.`;
-        iptablesRule = `iptables -A INPUT -s ${threat.source_ip} -m string --string "UNION SELECT" --algo bm -j DROP`;
-      } else if (threat.attack_type.includes('Zero-Day') || threat.attack_type.includes('RCE')) {
-        analysisText = `CRITICAL ALERT: Heuristic shellcode execution & novel buffer offset sequence observed in HTTP POST headers from ${threat.source_ip}. Maps to MITRE ATT&CK T1059.004 (Unix Shell Execution) & T1068 (Privilege Escalation). Edge recommendation: Total network isolation of destination container, immediate forensic memory snapshot, and reject all route advertisements.`;
-        iptablesRule = `iptables -A FORWARD -s ${threat.source_ip} -j REJECT --reject-with icmp-net-unreachable && nft add element inet filter blocklist { ${threat.source_ip} }`;
-      } else if (threat.attack_type.includes('SSH')) {
-        analysisText = `High frequency authentication failure burst (>45 attempts/sec) detected on Port 22 from ${threat.source_ip}. Maps to MITRE ATT&CK T1110.001 (Password Guessing). Edge recommendation: Block source IP, cycle compromised SSH keys, and restrict Port 22 strictly to trusted WireGuard VPN CIDRs.`;
-        iptablesRule = `iptables -A INPUT -p tcp --dport 22 -s ${threat.source_ip} -j DROP`;
-      } else if (threat.attack_type.includes('SSRF')) {
-        analysisText = `Suspicious internal loopback probe targeting AWS Instance Metadata Service (169.254.169.254) detected from ${threat.source_ip}. Maps to MITRE ATT&CK T1552 (Unsecured Credentials). Edge recommendation: Enforce IMDSv2 token validation and block ingress origin IP.`;
-        iptablesRule = `iptables -A FORWARD -d 169.254.169.254 -s ${threat.source_ip} -j DROP`;
-      } else {
-        analysisText = `Heuristic telemetry score: 94/100. Anomalous behavioral fingerprint observed from ${threat.source_ip}. Maps to MITRE ATT&CK T1071.001 (Application Layer Protocol). Edge recommendation: Enforce edge firewall drop rule and monitor peer ASN traffic.`;
-        iptablesRule = `iptables -A INPUT -s ${threat.source_ip} -j DROP`;
-      }
-
-      aiModalAssessment.textContent = analysisText;
-      aiModalRule.textContent = iptablesRule;
-
-      copyRuleText.textContent = 'Copy';
-      copyRuleBtn.classList.remove('text-emerald-400', 'border-emerald-500/50');
-
-      if (threat.status === 'Blocked') {
-        aiModalMitigateBtn.textContent = 'Already Mitigated';
-        aiModalMitigateBtn.disabled = true;
-        aiModalMitigateBtn.className = 'px-4 py-2 text-xs font-semibold rounded-xl bg-slate-300 dark:bg-slate-800 text-slate-500 font-mono cursor-not-allowed';
-      } else {
-        aiModalMitigateBtn.textContent = 'Execute Immediate Block';
-        aiModalMitigateBtn.disabled = false;
-        aiModalMitigateBtn.className = 'px-4 py-2 text-xs font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 dark:bg-cyber-neon dark:text-black dark:hover:bg-emerald-400 font-mono transition-all shadow-sm active:scale-95';
-      }
-
-      aiModal.classList.remove('hidden');
-      lucide.createIcons();
-    };
-
-    closeAiModalBtn.addEventListener('click', closeAiModal);
-    closeAiModalBtn2.addEventListener('click', closeAiModal);
-
-    function closeAiModal() {
-      aiModal.classList.add('hidden');
-      selectedThreatForAi = null;
-    }
-
-    aiModalMitigateBtn.addEventListener('click', () => {
-      if (selectedThreatForAi) {
-        handleBlockIp(selectedThreatForAi.id);
-        closeAiModal();
-      }
-    });
-
-    aiModal.addEventListener('click', (e) => {
-      if (e.target === aiModal) closeAiModal();
-    });
-
-    copyRuleBtn.addEventListener('click', async () => {
-      const rule = aiModalRule.textContent;
-      await copyTextToClipboard(rule);
-      copyRuleText.textContent = 'Copied!';
-      copyRuleBtn.classList.add('text-emerald-400', 'border-emerald-500/50');
-      setTimeout(() => {
-        copyRuleText.textContent = 'Copy';
-        copyRuleBtn.classList.remove('text-emerald-400', 'border-emerald-500/50');
-      }, 2000);
-    });
-
-    async function copyTextToClipboard(text) {
-      try {
-        if (navigator.clipboard && window.isSecureContext) {
-          await navigator.clipboard.writeText(text);
-        } else {
-          const ta = document.createElement('textarea');
-          ta.value = text;
-          ta.style.position = 'fixed';
-          ta.style.left = '-9999px';
-          document.body.appendChild(ta);
-          ta.select();
-          document.execCommand('copy');
-          document.body.removeChild(ta);
-        }
-        showToast(`Copied to clipboard: ${text.slice(0, 32)}...`);
-      } catch (err) {
-        console.warn('Clipboard copy error:', err);
-      }
-    }
-
-    /* -------------------------------------------------------------------------
-       RFC-4180 COMPLIANT CSV AUDIT EXPORT
-       ------------------------------------------------------------------------- */
-    exportBtn.addEventListener('click', () => {
-      exportThreatsToCsv();
-    });
-
-    function exportThreatsToCsv() {
-      if (threats.length === 0) {
-        showToast('No telemetry events to export.');
-        return;
-      }
-
-      const headers = ['Event_ID', 'Timestamp_UTC', 'Source_IP', 'ASN', 'Target_Port', 'Country_Code', 'Country_Name', 'Attack_Vector', 'Severity', 'Status'];
-      const escapeCsvCell = (val) => {
-        const str = String(val == null ? '' : val);
-        if (str.includes(',') || str.includes('"') || str.includes('\n')) {
-          return `"${str.replace(/"/g, '""')}"`;
-        }
-        return str;
-      };
-
-      const rows = threats.map(t => [
-        escapeCsvCell(t.id),
-        escapeCsvCell(t.created_at),
-        escapeCsvCell(t.source_ip),
-        escapeCsvCell(t.asn || 'AS12389'),
-        escapeCsvCell(t.target_port || 'TCP:443'),
-        escapeCsvCell(t.origin_country),
-        escapeCsvCell(t.country_name || t.origin_country),
-        escapeCsvCell(t.attack_type),
-        escapeCsvCell(t.severity || 'High'),
-        escapeCsvCell(t.status)
-      ]);
-
-      const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\r\n');
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const downloadLink = document.createElement('a');
-      const filename = `sentinel_threat_audit_${new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)}.csv`;
-      downloadLink.setAttribute('href', url);
-      downloadLink.setAttribute('download', filename);
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
-      URL.revokeObjectURL(url);
-
-      showToast(`Exported ${threats.length} telemetry records to ${filename}`);
-    }
-
-    /* -------------------------------------------------------------------------
-       TOAST NOTIFICATION ENGINE
-       ------------------------------------------------------------------------- */
-    function showToast(msg) {
-      const toast = document.createElement('div');
-      toast.className = 'fixed bottom-5 right-5 z-50 px-4 py-2.5 rounded-xl border font-mono text-xs shadow-xl transition-all transform duration-300 translate-y-3 opacity-0 bg-slate-900 text-white border-slate-700 dark:bg-cyber-surface dark:border-cyber-cyan dark:text-cyan-300 flex items-center gap-2';
-      toast.innerHTML = `<i data-lucide="info" class="w-4 h-4 text-cyan-400"></i> <span>${escapeHtml(msg)}</span>`;
-      document.body.appendChild(toast);
-      lucide.createIcons();
-
-      requestAnimationFrame(() => {
-        toast.classList.remove('translate-y-3', 'opacity-0');
-      });
-
-      setTimeout(() => {
-        toast.classList.add('translate-y-3', 'opacity-0');
-        setTimeout(() => toast.remove(), 350);
-      }, 3200);
-    }
-
-    /* -------------------------------------------------------------------------
-       REAL-TIME STREAMING TELEMETRY CANVAS (60 FPS Network Graph)
-       ------------------------------------------------------------------------- */
-    const graphPoints = Array.from({ length: 60 }, () => 30 + Math.random() * 20);
-    let spikeActive = false;
-
-    function triggerGraphSpike() {
-      spikeActive = true;
-      chartAlertBadge.classList.remove('hidden');
-      for (let i = 0; i < 5; i++) {
-        graphPoints[graphPoints.length - 1 - i] = 85 + Math.random() * 15;
-      }
-      liveMbpsValue.textContent = `${(1800 + Math.random() * 900).toFixed(0)} Mbps`;
-      liveAnomalySpikes.textContent = `${(120 + Math.random() * 80).toFixed(0)} pkts/s`;
-      setTimeout(() => {
-        spikeActive = false;
-        chartAlertBadge.classList.add('hidden');
-        liveMbpsValue.textContent = '842 Mbps';
-        liveAnomalySpikes.textContent = '14 pkts/s';
-      }, 3500);
-    }
-
-    function startTelemetryCanvas() {
-      const ctx = trafficCanvas.getContext('2d');
-      function resize() {
-        trafficCanvas.width = trafficCanvas.parentElement.clientWidth * window.devicePixelRatio;
-        trafficCanvas.height = trafficCanvas.parentElement.clientHeight * window.devicePixelRatio;
-      }
-      resize();
-      window.addEventListener('resize', resize);
-
-      let step = 0;
-      function draw() {
-        step++;
-        if (step % 4 === 0) {
-          const nextVal = spikeActive ? (75 + Math.random() * 22) : (25 + Math.random() * 25);
-          graphPoints.push(nextVal);
-          graphPoints.shift();
-        }
-
-        const w = trafficCanvas.width;
-        const h = trafficCanvas.height;
-
-        ctx.clearRect(0, 0, w, h);
-
-        // Draw cyber grid
-        ctx.strokeStyle = 'rgba(0, 240, 255, 0.08)';
-        ctx.lineWidth = 1;
-        for (let x = 0; x < w; x += 40) {
-          ctx.beginPath();
-          ctx.moveTo(x, 0);
-          ctx.lineTo(x, h);
-          ctx.stroke();
-        }
-        for (let y = 0; y < h; y += 30) {
-          ctx.beginPath();
-          ctx.moveTo(0, y);
-          ctx.lineTo(w, y);
-          ctx.stroke();
-        }
-
-        // Draw bandwidth wave
-        ctx.beginPath();
-        const slice = w / (graphPoints.length - 1);
-        graphPoints.forEach((val, i) => {
-          const x = i * slice;
-          const y = h - (val / 100) * (h * 0.85) - 8;
-          if (i === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        });
-
-        // Gradient under wave
-        const grad = ctx.createLinearGradient(0, 0, 0, h);
-        if (spikeActive) {
-          grad.addColorStop(0, 'rgba(255, 0, 85, 0.45)');
-          grad.addColorStop(1, 'rgba(255, 0, 85, 0.0)');
-          ctx.strokeStyle = '#ff0055';
-        } else {
-          grad.addColorStop(0, 'rgba(0, 240, 255, 0.35)');
-          grad.addColorStop(1, 'rgba(0, 240, 255, 0.0)');
-          ctx.strokeStyle = '#00f0ff';
-        }
-        ctx.lineWidth = 2.5 * window.devicePixelRatio;
-        ctx.stroke();
-
-        ctx.lineTo(w, h);
-        ctx.lineTo(0, h);
-        ctx.fillStyle = grad;
-        ctx.fill();
-
-        requestAnimationFrame(draw);
-      }
-      requestAnimationFrame(draw);
-    }
-
-    /* -------------------------------------------------------------------------
-       REAL-TIME eBPF KERNEL LOG CONSOLE
-       ------------------------------------------------------------------------- */
-    function logKernelEvent(action, ip, detail) {
-      const time = new Date().toISOString().slice(11, 19);
-      const line = document.createElement('div');
-      line.className = 'flex items-baseline gap-2 leading-tight transition-all';
-      
-      const isAlert = action.includes('ANOMALY') || action.includes('INCURSION');
-      const isDrop = action.includes('DROP') || action.includes('COMMIT');
-
-      const colorTag = isAlert 
-        ? 'text-red-400 font-bold' 
-        : isDrop 
-        ? 'text-emerald-400 font-bold' 
-        : 'text-cyan-400';
-
-      line.innerHTML = `
-        <span class="text-slate-500">[${time}]</span>
-        <span class="${colorTag}">[${action}]</span>
-        <span class="text-slate-200">${ip}</span>
-        <span class="text-slate-400 text-[9px]">&bull; ${escapeHtml(detail)}</span>
-      `;
-
-      kernelLogsContainer.appendChild(line);
-      kernelLogsContainer.scrollTop = kernelLogsContainer.scrollHeight;
-
-      // Keep maximum 40 log lines
-      if (kernelLogsContainer.children.length > 40) {
-        kernelLogsContainer.removeChild(kernelLogsContainer.firstChild);
-      }
-    }
-
-    function seedKernelLogs() {
-      logKernelEvent('eBPF_INIT', '127.0.0.1', 'xdp_prog loaded onto interface eth0 (JIT compiled)');
-      logKernelEvent('INGRESS_SCAN', '185.220.101.5', 'SYN volumetric threshold exceeded (145k pps)');
-      logKernelEvent('eBPF_DROP', '185.220.101.5', 'XDP_DROP verdict committed (0ns latency)');
-      logKernelEvent('SURICATA_SIG', '45.154.255.89', 'Rule 2010927: SQL UNION payload flagged');
-      logKernelEvent('NEURAL_AUDIT', '103.251.167.20', 'Shellcode buffer offset isolated');
-    }
-
-    /* =========================================================================
-       SUPABASE REALTIME LISTENER & INITIAL FETCH HELPER FUNCTIONS
-       ========================================================================= */
-    function initSupabase() {
-      if (!window.supabase) {
-        console.warn('[Sentinel AI] Supabase SDK not loaded yet.');
-        return;
-      }
-      try {
-        supabaseClient = window.supabase.createClient(SUPABASE_CONFIG.URL, SUPABASE_CONFIG.ANON_KEY);
-        syncStatusText.textContent = 'CONNECTED (SUPABASE REALTIME)';
-        syncStatusText.className = 'text-cyan-500 dark:text-cyber-cyan font-bold';
-        setupSupabaseRealtime();
-        fetchInitialThreatsFromSupabase();
-      } catch (err) {
-        console.error('[Sentinel AI] Supabase initialization failed:', err);
-      }
-    }
-
-    async function fetchInitialThreatsFromSupabase() {
-      if (!supabaseClient) return;
-      try {
-        const { data, error } = await supabaseClient
-          .from('network_threats')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(50);
-
-        if (error) {
-          console.error('[Supabase Select Error]:', error);
-          return;
-        }
-
-        if (data && data.length > 0) {
-          threats = data.map(dbRow => {
-            const countryMatch = COUNTRY_POOL.find(c => c.code === dbRow.origin_country);
-            const attackMatch = ATTACK_POOL.find(a => a.type === dbRow.attack_type);
-            return {
-              id: dbRow.id,
-              created_at: dbRow.created_at,
-              source_ip: dbRow.source_ip,
-              asn: ASN_POOL[Math.floor(Math.random() * ASN_POOL.length)],
-              target_port: attackMatch ? attackMatch.port : 'TCP:443 (HTTPS Ingress)',
-              origin_country: dbRow.origin_country,
-              country_name: countryMatch ? countryMatch.name : dbRow.origin_country,
-              flag: countryMatch ? countryMatch.flag : '🌐',
-              attack_type: dbRow.attack_type,
-              severity: dbRow.severity || 'High',
-              status: dbRow.status || 'Active'
-            };
-          });
-          renderTable();
-          updateStats();
-        }
-      } catch (err) {
-        console.error('[Supabase Error]:', err);
-      }
-    }
-
-    function setupSupabaseRealtime() {
-      if (!supabaseClient) return;
-      try {
-        supabaseClient
-          .channel('public:network_threats')
-          .on(
-            'postgres_changes',
-            { event: 'INSERT', schema: 'public', table: 'network_threats' },
-            (payload) => {
-              const newRow = payload.new;
-              if (threats.some(t => t.id === newRow.id || (t.source_ip === newRow.source_ip && Math.abs(new Date(t.created_at) - new Date(newRow.created_at)) < 3000))) {
-                return;
-              }
-              const countryMatch = COUNTRY_POOL.find(c => c.code === newRow.origin_country);
-              const attackMatch = ATTACK_POOL.find(a => a.type === newRow.attack_type);
-              const newThreat = {
-                id: newRow.id,
-                created_at: newRow.created_at,
-                source_ip: newRow.source_ip,
-                asn: ASN_POOL[Math.floor(Math.random() * ASN_POOL.length)],
-                target_port: attackMatch ? attackMatch.port : 'TCP:443 (HTTPS Ingress)',
-                origin_country: newRow.origin_country,
-                country_name: countryMatch ? countryMatch.name : newRow.origin_country,
-                flag: countryMatch ? countryMatch.flag : '🌐',
-                attack_type: newRow.attack_type,
-                severity: newRow.severity || 'High',
-                status: newRow.status || 'Active'
-              };
-              threats.unshift(newThreat);
-              prependThreatRow(newThreat);
-              updateStats();
-              playSound('alarm');
-              triggerGraphSpike();
-              logKernelEvent('REALTIME_INCURSION', newThreat.source_ip, `Received via WebSocket channel`);
-
-              if (autoDefenseEnabled && newThreat.status === 'Active') {
-                pendingQuarantines.add(newThreat.id);
-                setTimeout(() => {
-                  pendingQuarantines.delete(newThreat.id);
-                  handleBlockIp(newThreat.id, true);
-                }, 2000);
-              }
-            }
-          )
-          .on(
-            'postgres_changes',
-            { event: 'UPDATE', schema: 'public', table: 'network_threats' },
-            (payload) => {
-              const updated = payload.new;
-              const existing = threats.find(t => t.id === updated.id || t.source_ip === updated.source_ip);
-              if (existing) {
-                existing.status = updated.status;
-                renderTable();
-                updateStats();
-              }
-            }
-          )
-          .subscribe((status) => {
-            console.log('[Supabase Realtime Status]:', status);
-          });
-      } catch (err) {
-        console.error('[Supabase Realtime Setup Error]:', err);
-      }
-    }
-
-    // Close on Escape Key
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        closeAiModal();
-      }
-    });
-  </script>
+  <div>
+   <div class="vis shot" id="shot">
+    <img class="d" src="images/dashboard-dark.png" alt="Sentinel AI dashboard, dark mode">
+    <img class="l" src="images/dashboard-light.png" alt="Sentinel AI dashboard, light mode">
+    <svg viewBox="0 0 420 270" aria-label="Dashboard preview">
+     <rect width="420" height="270" rx="10" fill="var(--bg)"/>
+     <rect x="12" y="10" width="396" height="22" rx="6" fill="rgba(220,38,38,.15)"/><text x="22" y="25" fill="var(--danger)" font-family="monospace" font-size="9" font-weight="700">ALERT: 2 ACTIVE BREACH ATTEMPTS DETECTED</text>
+     <g font-family="monospace" font-size="8" fill="var(--muted)"><rect x="12" y="40" width="94" height="40" rx="6" fill="var(--panel)" stroke="var(--border)"/><text x="20" y="54">TRAFFIC</text><text x="20" y="72" font-size="13" fill="var(--text)" font-weight="700">48,210</text>
+     <rect x="112" y="40" width="94" height="40" rx="6" fill="var(--panel)" stroke="var(--border)"/><text x="120" y="54">ACTIVE</text><text x="120" y="72" font-size="13" fill="var(--danger)" font-weight="700">2</text>
+     <rect x="212" y="40" width="94" height="40" rx="6" fill="var(--panel)" stroke="var(--border)"/><text x="220" y="54">BLOCKED</text><text x="220" y="72" font-size="13" fill="var(--ok)" font-weight="700">4</text>
+     <rect x="312" y="40" width="96" height="40" rx="6" fill="var(--panel)" stroke="var(--border)"/><text x="320" y="54">DEFENSE</text><text x="320" y="72" font-size="13" fill="var(--accent2)" font-weight="700">67%</text></g>
+     <rect x="12" y="88" width="250" height="70" rx="6" fill="var(--panel)" stroke="var(--border)"/>
+     <polyline points="20,140 50,132 80,136 110,120 140,126 170,100 190,96 215,128 240,122" fill="none" stroke="var(--accent)" stroke-width="2"/>
+     <rect x="268" y="88" width="140" height="70" rx="6" fill="#02050a"/><g font-family="monospace" font-size="6.5" fill="#9dffcf"><text x="274" y="102">[INGRESS_ANOMALY]</text><text x="274" y="114">[eBPF_DROP_COMMIT]</text><text x="274" y="126">[STATUS] Blocked</text></g>
+     <rect x="12" y="166" width="396" height="92" rx="6" fill="var(--panel)" stroke="var(--border)"/>
+     <g font-family="monospace" font-size="8" fill="var(--text)"><text x="22" y="184">185.220.101.5   DDoS SYN Flood</text><rect x="320" y="175" width="44" height="12" rx="6" fill="rgba(220,38,38,.15)"/><text x="326" y="184" fill="var(--danger)" font-size="7">ACTIVE</text>
+     <text x="22" y="206">45.154.255.89   SQL Injection</text><rect x="320" y="197" width="44" height="12" rx="6" fill="rgba(220,38,38,.15)"/><text x="326" y="206" fill="var(--danger)" font-size="7">ACTIVE</text>
+     <text x="22" y="228">103.251.167.20  Zero-Day RCE</text><rect x="320" y="219" width="44" height="12" rx="6" fill="rgba(22,163,74,.16)"/><text x="324" y="228" fill="var(--ok)" font-size="7">BLOCKED</text></g>
+    </svg>
+   </div>
+   <div class="cap">SENTINEL AI DASHBOARD</div>
+  </div>
+ </div>
+</section>
+
+<!-- 12 ASK AI -->
+<section class="slide r2" data-who="Vijay Bhaskar">
+ <div class="kicker">Ask AI button</div>
+ <h2>A helper that <span class="grad">explains and advises</span></h2>
+ <div class="grid">
+  <div class="card"><div class="ic">💬</div><h3>1. Explains</h3><p>Tells you in plain words what the attack is and why it is dangerous.</p></div>
+  <div class="card"><div class="ic">🏷️</div><h3>2. Names it</h3><p>Gives the official attack ID from MITRE ATT&amp;CK, a worldwide dictionary of attack names.</p></div>
+  <div class="card"><div class="ic">📋</div><h3>3. Gives a fix</h3><p>Shows a ready-made firewall rule. Press Copy and use it.</p></div>
+ </div>
+ <div class="simple"><b>In simple words:</b> an assistant that tells the analyst what happened and what to do next. Example: SYN flood = T1498, SQL injection = T1190.</div>
+ <p class="note">It follows fixed rules, so its answers are fast and easy to explain.</p>
+</section>
+
+<!-- 7 AUTO DEFENSE -->
+<section class="slide r2" data-who="Vijay Bhaskar">
+ <div class="split">
+  <div>
+   <div class="kicker">IPS add-on • Autonomous response</div>
+   <h2>Blocked in <span class="grad">2 seconds</span> — automatically</h2>
+   <p class="sub">When Auto-Defense is ON, the system blocks the attacker by itself. A person does not need to click anything.</p><div class="simple"><b>In simple words:</b> like a door that locks automatically when it sees a thief.</div>
+  </div>
+  <div class="card" style="padding:26px">
+   <span class="pill act" id="apill">ACTIVE</span>
+   <h3 style="margin-top:14px;font-family:var(--mono)">185.220.101.5</h3>
+   <p>DDoS SYN Flood • Critical</p>
+   <div class="bar"><i></i></div>
+   <p id="atxt" style="font:700 .8rem var(--mono);color:var(--muted)">Auto-blocking in 2s…</p>
+  </div>
+ </div>
+</section>
+
+<!-- 10 REALTIME -->
+<section class="slide r2" data-who="Vijay Bhaskar">
+ <div class="kicker">Live updates</div>
+ <h2>Everyone sees it <span class="grad">at the same time</span></h2>
+ <div class="flow">
+  <div class="card"><div class="ic">💥</div><h3>1. Alert happens</h3><p>An attack is detected</p></div><span class="arrow">➜</span>
+  <div class="card"><div class="ic">🗄️</div><h3>2. Saved online</h3><p>In the Supabase database</p></div><span class="arrow">➜</span>
+  <div class="card"><div class="ic">📡</div><h3>3. Sent instantly</h3><p>Using WebSocket</p></div><span class="arrow">➜</span>
+  <div class="card"><div class="ic">💻📱</div><h3>4. Every screen updates</h3><p>No refresh needed</p></div>
+ </div>
+ <div class="simple"><b>In simple words:</b> like a group chat. One person sends a message and everyone sees it instantly. Laptop and phone stay in sync.</div>
+</section>
+
+<!-- DEMO -->
+<section class="slide live" data-who="Vijay Bhaskar">
+ <div class="kicker">How Sentinel AI works</div>
+ <h1><span class="pulse"></span>LIVE <span class="grad">DEMO</span></h1>
+ <p class="sub">Open: <a href="https://sentinel-ai-inky-gamma.vercel.app" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700">sentinel-ai-inky-gamma.vercel.app</a></p>
+ <div class="grid">
+  <div class="card"><div class="big">1</div><h3>The dashboard</h3><p>Banner, number boxes, table.</p></div>
+  <div class="card"><div class="big">2</div><h3>An attack</h3><p>The IDS detects and alerts.</p></div>
+  <div class="card"><div class="big">3</div><h3>Ask AI</h3><p>Explains and gives a rule.</p></div>
+  <div class="card"><div class="big">4</div><h3>Auto-block</h3><p>The IPS blocks in 2 seconds.</p></div>
+  <div class="card"><div class="big">5</div><h3>Phone sync</h3><p>Same alert, no refresh.</p></div>
+ </div>
+ <p class="note">When the demo ends, come back to this deck and press the right arrow to continue with the next slide.</p>
+</section>
+
+<!-- ADVANTAGES -->
+<section class="slide" data-who="Sravani">
+ <div class="kicker">Advantages</div>
+ <h2>Why <span class="grad">Sentinel AI</span> is useful</h2>
+ <div class="grid">
+  <div class="card"><div class="ic">⚡</div><h3>Real-time</h3><p>Alerts come instantly.</p></div>
+  <div class="card"><div class="ic">🤖</div><h3>Automatic</h3><p>Blocks threats without a human.</p></div>
+  <div class="card"><div class="ic">🧒</div><h3>Easy</h3><p>Everyone can understand it.</p></div>
+  <div class="card"><div class="ic">📱</div><h3>Any device</h3><p>Laptop or phone.</p></div>
+ </div>
+ <div style="margin-top:14px"><span class="tag">Low cost</span><span class="tag">CSV audit report</span></div>
+ <div class="simple"><b>What makes us different:</b> detect, explain and block, all in one simple tool.</div>
+</section>
+
+<!-- REAL WORLD -->
+<section class="slide" data-who="Sravani">
+ <div class="kicker">Real-time use</div>
+ <h2>How it is used in the <span class="grad">real world</span></h2>
+ <div class="flow">
+  <div class="card"><div class="ic">🏢</div><h3>1 Connect</h3><p>To a network the owner permits</p></div><span class="arrow">➜</span>
+  <div class="card"><div class="ic">📡</div><h3>2 Send</h3><p>Network events flow in</p></div><span class="arrow">➜</span>
+  <div class="card"><div class="ic">🗄️</div><h3>3 Store &amp; sync</h3><p>Database + live updates</p></div><span class="arrow">➜</span>
+  <div class="card"><div class="ic">👩‍💻</div><h3>4 Watch</h3><p>Team sees the dashboard</p></div><span class="arrow">➜</span>
+  <div class="card"><div class="ic">🛡️</div><h3>5 Respond</h3><p>Auto-block + Ask AI</p></div>
+ </div>
+ <div style="margin-top:14px"><span class="tag">Colleges</span><span class="tag">Small companies</span><span class="tag">Cloud servers</span></div>
+ <p class="note">Our demo uses dummy data, so we only show the idea. Real traffic must always come from systems the owner allows.</p>
+</section>
+
+<!-- 13 SCOPE -->
+<section class="slide r2" data-who="Vijay Bhaskar">
+ <div class="kicker">Honest summary</div>
+ <h2>What is <span class="grad">demo</span>, and what is <span class="grad">next</span></h2>
+ <div class="grid" style="grid-template-columns:1fr 1fr 1fr">
+  <div class="card"><div class="ic">🎭</div><h3>Simulated today</h3><p>Attack events and traffic numbers are made by our simulator, so nobody is harmed.</p></div>
+  <div class="card"><div class="ic">✅</div><h3>Really works today</h3><p>Alerts, live sync, database, Ask AI, auto-block status and CSV report.</p></div>
+  <div class="card"><div class="ic">🚀</div><h3>Next steps</h3><p>Read real network traffic (using eBPF), add user login, a smarter AI helper, and a history of who blocked what.</p></div>
+ </div>
+ <div class="simple"><b>In simple words:</b> the idea and the system work. The next step is connecting it to real, permitted network traffic.</div>
+</section>
+
+<!-- TECH -->
+<section class="slide" data-who="Vijay Bhaskar">
+ <div class="kicker">Technologies used</div>
+ <h2>Our <span class="grad">tech stack</span></h2>
+ <div class="grid">
+  <div class="card"><div class="ic">🎨</div><h3>Frontend</h3><p>HTML, CSS, JavaScript, Tailwind CSS, Lucide icons.</p></div>
+  <div class="card"><div class="ic">🗄️</div><h3>Backend: Supabase</h3><p>Postgres database, Realtime (WebSocket), Row Level Security.</p></div>
+  <div class="card"><div class="ic">☁️</div><h3>Hosting: Vercel</h3><p>Puts the app online with a public link.</p></div>
+  <div class="card"><div class="ic">🐙</div><h3>Code: GitHub</h3><p>Stores our code and auto-updates Vercel.</p></div>
+ </div>
+ <div style="margin-top:16px"><span class="tag">HTML</span><span class="tag">CSS</span><span class="tag">JavaScript</span><span class="tag">SQL</span></div>
+ <p class="note">No framework and no build tools. The whole app is one fast HTML file.</p>
+</section>
+
+<!-- CONCLUSION -->
+<section class="slide" data-who="Ganesh">
+ <div class="kicker">Conclusion</div>
+ <h2>From <span class="grad">demo</span> to the real world</h2>
+ <p class="sub">Security is needed everywhere. So we want to use Sentinel AI in real time and make it more advanced.</p>
+ <div class="grid" style="grid-template-columns:1fr 1fr">
+  <div class="card ids"><span class="badge b-ids">TODAY</span><h3>Working prototype</h3><p>Detects attacks, blocks them automatically, and explains them with AI help. Uses dummy data.</p></div>
+  <div class="card ips"><span class="badge b-ips">NEXT</span><h3>Advanced real-time version</h3><p>Real network traffic &bull; user login &bull; smarter AI &bull; real firewall blocking.</p></div>
+ </div>
+ <div class="simple"><b>In simple words:</b> Sentinel AI proves the idea works. We want to build it into an advanced real-time security tool.</div>
+</section>
+
+<!-- 14 SUMMARY -->
+<section class="slide" data-who="Ganesh" style="align-items:center;text-align:center">
+ <div class="kicker">Thank you • Team Xynova • Adarsh College of Engineering</div>
+ <h1>Detect. Decide. <span class="grad">Defend.</span></h1>
+ <p class="sub" style="margin-left:auto;margin-right:auto">Thank you for giving us this opportunity. Questions are welcome.</p>
+ <div><span class="tag">Real-time IDS</span><span class="tag">IPS add-on</span><span class="tag">Supabase</span><span class="tag">MITRE ATT&amp;CK</span><span class="tag">Open source (MIT)</span></div>
+</section>
+
+<div class="hud bot">
+ <button class="btn" id="prev" aria-label="Previous slide">◀ Prev</button>
+ <div class="dots" id="dots"></div>
+ <span><span id="cnt">1 / 1</span> &nbsp; <button class="btn" id="next" aria-label="Next slide">Next ▶</button></span>
+</div>
+
+<script>
+(function(){
+ var all=[].slice.call(document.querySelectorAll('.slide')),slides=[],i=0,timers=[],
+ dots=document.getElementById('dots'),cnt=document.getElementById('cnt'),prog=document.getElementById('prog'),
+ tbtn=document.getElementById('theme'),mbtn=document.getElementById('mode'),who=document.getElementById('who'),root=document.documentElement,
+ mode='r2';
+ try{mode=localStorage.getItem('sentinel-deck-mode2')||'r2'}catch(e){}
+ var shot=document.getElementById('shot'),imgs=shot?shot.querySelectorAll('img'):[];
+ [].forEach.call(imgs,function(im){im.addEventListener('load',function(){shot.classList.add('has')});im.addEventListener('error',function(){im.remove()})});
+ function countUp(el){var t=+el.dataset.count,s=el.dataset.suf||'',n=0,step=Math.max(1,Math.ceil(t/40));
+  var iv=setInterval(function(){n=Math.min(t,n+step);el.textContent=n+s;if(n>=t)clearInterval(iv)},30);timers.push(iv)}
+ function onEnter(s){
+  timers.forEach(clearTimeout);timers=[];
+  [].forEach.call(s.querySelectorAll('[data-count]'),countUp);
+  var p=s.querySelector('#apill');
+  if(p){p.className='pill act';p.textContent='ACTIVE';document.getElementById('atxt').textContent='Auto-blocking in 2s…';
+   timers.push(setTimeout(function(){p.className='pill blk';p.textContent='BLOCKED';document.getElementById('atxt').textContent='✔ Drop rule committed • status saved'},2300))}
+ }
+ function build(keep){
+  slides=all.filter(function(s){return mode==='r2'||!s.classList.contains('r2')});
+  all.forEach(function(s){s.style.display=slides.indexOf(s)<0?'none':''});
+  dots.innerHTML='';
+  slides.forEach(function(_,n){var d=document.createElement('b');d.onclick=function(){go(n)};dots.appendChild(d)});
+  mbtn.textContent=mode==='r2'?'📚 Full version':'⏱ Short version';
+  var k=-1;
+  if(keep){for(var q=all.indexOf(keep);q<all.length;q++){if(slides.indexOf(all[q])>=0){k=slides.indexOf(all[q]);break}}}
+  go(k<0?Math.min(i,slides.length-1):k);
+ }
+ function go(n){
+  i=Math.max(0,Math.min(slides.length-1,n));
+  var cur=slides[i],ci=all.indexOf(cur);
+  all.forEach(function(s,k){s.classList.toggle('active',s===cur);s.classList.toggle('past',k<ci)});
+  [].forEach.call(dots.children,function(d,k){d.classList.toggle('on',k===i)});
+  cnt.textContent=(i+1)+' / '+slides.length;prog.style.width=((i+1)/slides.length*100)+'%';
+  who.textContent=cur.dataset.who?'🎤 '+cur.dataset.who:'';
+  onEnter(cur);
+  try{history.replaceState(null,'','#'+(i+1))}catch(e){}
+ }
+ function toggleMode(){var cur=slides[i];mode=mode==='r1'?'r2':'r1';try{localStorage.setItem('sentinel-deck-mode2',mode)}catch(e){}build(cur)}
+ function setTheme(t){root.setAttribute('data-theme',t);tbtn.textContent=t==='dark'?'☀ Light':'🌙 Dark';try{localStorage.setItem('sentinel-deck-theme',t)}catch(e){}}
+ var saved=null;try{saved=localStorage.getItem('sentinel-deck-theme')}catch(e){}
+ setTheme(saved||'dark');
+ tbtn.onclick=function(){setTheme(root.getAttribute('data-theme')==='dark'?'light':'dark')};
+ mbtn.onclick=toggleMode;
+ document.getElementById('next').onclick=function(){go(i+1)};
+ document.getElementById('prev').onclick=function(){go(i-1)};
+ document.addEventListener('keydown',function(e){var k=e.key;
+  if(k==='ArrowRight'||k==='ArrowDown'||k==='PageDown'||k===' '){e.preventDefault();go(i+1)}
+  else if(k==='ArrowLeft'||k==='ArrowUp'||k==='PageUp'){e.preventDefault();go(i-1)}
+  else if(k==='Home')go(0);else if(k==='End')go(slides.length-1);
+  else if(k==='t'||k==='T')tbtn.click();else if(k==='r'||k==='R')toggleMode();
+  else if(k==='c'||k==='C')who.style.display=who.style.display==='none'?'':'none'});
+ var sx=null;document.addEventListener('touchstart',function(e){sx=e.touches[0].clientX},{passive:true});
+ document.addEventListener('touchend',function(e){if(sx===null)return;var dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>60)go(i+(dx<0?1:-1));sx=null});
+ build(null);
+ var h=parseInt((location.hash||'').slice(1),10);if(!isNaN(h))go(h-1);
+})();
+</script>
 </body>
 </html>
